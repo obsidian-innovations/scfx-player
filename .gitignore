@@ -1,0 +1,5 @@
+project/*
+!project/plugins.sbt
+target/
+.idea/
+.idea_modules/
