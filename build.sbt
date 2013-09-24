@@ -17,7 +17,9 @@ libraryDependencies ++= Seq(
 //                            "org.scalafx" % "scalafx_2.10" % "8.0.0-M1"
                             )
 
-unmanagedJars in Compile += Attributed.blank(file(System.getenv("JAVA_HOME") + "/jre/lib/jfxrt.jar"))
+//unmanagedJars in Compile += Attributed.blank(file(System.getenv("JAVA_HOME") + "/jre/lib/jfxrt.jar"))
+unmanagedJars in Compile += Attributed.blank(file(scala.util.Properties.javaHome) / "lib" / "jfxrt.jar")
+
 
 mainClass in (Compile, run) := Some("org.scfxplayer.Main")
 
