@@ -3,82 +3,72 @@ package org.scfxplayer
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.Scene
-import scalafx.scene.layout.HBox
-import scalafx.scene.paint.Color._
-import scalafx.scene.effect._
-import scalafx.scene.paint.{ Stops, LinearGradient }
-import scalafx.scene.text.Text
+import scalafx.scene.control.{TableView, Button}
 import javafx.event.EventHandler
-import javafx.stage.WindowEvent
+import javafx.scene.input.MouseEvent
+import scalafx.stage.FileChooser
+import java.io.File
+import scala.collection.JavaConversions._
+import scalafx.beans.property.StringProperty
+import scalafx.collections.ObservableBuffer
+import scalafx.scene.control.TableColumn._
+import scalafx.scene.control.{TableColumn, TableView}
+import scalafx.scene.layout.VBox
 
-// *************** Some reading material **************** //
-//http://search.maven.org/#search%7Cga%7C1%7Cscalafx
-//http://raintomorrow.cc/post/50811498259/how-to-package-a-scala-project-into-an-executable-jar
-//http://codingonthestaircase.wordpress.com/2013/09/11/what-is-new-in-scalafx-8-milestone-1/
-//https://github.com/jugchennai/scalafx.g8/blob/master/src/main/g8/build.sbt
-//http://java.dzone.com/articles/getting-started-scalafx-and
+class MusicRecordItem(fileName_ : String, fileExt_ : String) {
+  val fileName = new StringProperty(this, "fileName", fileName_)
+  val fileExt = new StringProperty(this, "fileExt", fileExt_)
+}
 
 object Main extends JFXApp {
 
-  val scalaText = new Text {
-    text = "Scala"
-    style = "-fx-font-size: 100pt"
-    fill = new LinearGradient(
-      endX = 0,
-      stops = Stops(PALEGREEN, SEAGREEN))
-  }
+  val fchooser:FileChooser = new FileChooser()
+  val f = new FileChooser.ExtensionFilter("MP3 (MPEG-1 or MPEG-2 Audio Layer III)", Seq("*.mp3", "*.MP3"))
+  fchooser.getExtensionFilters.addAll(f)
 
-  val fxText = new Text {
-    text = "FX"
-    style = "-fx-font-size: 100pt"
-    fill = new LinearGradient(
-      endX = 0,
-      stops = Stops(CYAN, DODGERBLUE))
-    effect = new DropShadow {
-      color = DODGERBLUE
-      radius = 25
-      spread = 0.25
-    }
-  }
+  val musicRecItems = ObservableBuffer[MusicRecordItem]()
 
-  val playerText = new Text {
-    text = " Player"
-    style = "-fx-font-size: 100pt"
-    fill = new LinearGradient(
-      endX = 0,
-      stops = Stops(PALEGREEN, SEAGREEN))
-  }
-
-  val textSeq = Seq(scalaText, fxText, playerText)
-
-  val textBox = new HBox {
-    content = textSeq
-    effect = new Reflection {
-      topOffset = -50
-      bottomOpacity = 0.75
-      input = new Lighting {
-        light = new Light.Distant {
-          elevation = 60
-        }
+  val musicRecTable = new TableView[MusicRecordItem](musicRecItems) {
+    columns ++= List(
+      new TableColumn[MusicRecordItem, String] {
+        text = "File Name"
+        cellValueFactory = {_.value.fileName}
+        prefWidth = 180
+      },
+      new TableColumn[MusicRecordItem, String]() {
+        text = "File Extention"
+        cellValueFactory = {_.value.fileExt}
+        prefWidth = 180
       }
-    }
+    )
   }
 
   stage = new PrimaryStage {
-    title = "ScalaFX Demo Player"
-    width = 650
-    height = 450
+    title = "Demo ScalaFX Player"
+    width = 640
+    height = 480
     scene = new Scene {
-      fill = BLACK
-      content = textBox
-    }
-    onShown = new EventHandler[WindowEvent] {
-      override def handle(event:WindowEvent) {
-        event.consume()
-        stage.setWidth(textSeq.foldLeft(0.0){(r, c) => c.boundsInLocal.value.getWidth + r})
-        stage.setHeight(textBox.boundsInLocal.value.getHeight)
+      content = new VBox {
+        content = Seq(
+          new Button {
+            text = "Open"
+            onMouseClicked = new EventHandler[MouseEvent] {
+              override def handle(event:MouseEvent) {
+                event.consume()
+                fchooser.showOpenMultipleDialog(scene.value.getWindow) match {
+                  case null => Unit
+                  case fs => {
+                    musicRecItems.clear
+                    musicRecItems.addAll(fs.map(f => new MusicRecordItem(f.getName, "mp3")))
+                  }
+                }
+              }
+            }
+          },
+          musicRecTable
+        )
       }
+
     }
   }
-
 }
