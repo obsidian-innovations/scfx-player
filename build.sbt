@@ -21,7 +21,7 @@ libraryDependencies ++= Seq(
 unmanagedJars in Compile += Attributed.blank(file(scala.util.Properties.javaHome) / "lib" / "jfxrt.jar")
 
 
-mainClass in (Compile, run) := Some("org.scfxplayer.Main")
+mainClass in (Compile, run) := Some("org.scfxplayer.ScFxMediaTagTest")
 
 mainClass in assembly := Some("org.scfxplayer.Main")
 
