@@ -9,7 +9,7 @@ scalaVersion := "2.10.2"
 assemblySettings
 
 libraryDependencies ++= Seq(
-//                            "org.specs2" % "specs2_2.10" % "1.13",
+                           "org.specs2" %% "specs2" % "2.2.2" % "test",
                             "org" % "jaudiotagger" % "2.0.3",
 // current stuff
                              "org.scalafx" % "scalafx_2.10" % "1.0.0-M5"
