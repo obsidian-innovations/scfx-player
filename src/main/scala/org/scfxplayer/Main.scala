@@ -13,7 +13,7 @@ import scalafx.beans.property.StringProperty
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control.TableColumn._
 import scalafx.scene.control.{TableColumn, TableView}
-import scalafx.scene.layout.VBox
+import scalafx.scene.layout.{Priority, VBox}
 
 class MusicRecordItem(fileName_ : String, fileExt_ : String) {
   val fileName = new StringProperty(this, "fileName", fileName_)
@@ -27,8 +27,9 @@ object Main extends JFXApp {
   fchooser.getExtensionFilters.addAll(f)
 
   val musicRecItems = ObservableBuffer[MusicRecordItem]()
-
   val musicRecTable = new TableView[MusicRecordItem](musicRecItems) {
+    vgrow = Priority.ALWAYS
+    hgrow = Priority.ALWAYS
     columns ++= List(
       new TableColumn[MusicRecordItem, String] {
         text = "File Name"
@@ -43,32 +44,37 @@ object Main extends JFXApp {
     )
   }
 
+  val mainLayout = new VBox {
+    vgrow = Priority.ALWAYS
+    hgrow = Priority.ALWAYS
+    content = Seq(
+      new Button {
+        text = "Open"
+        onMouseClicked = new EventHandler[MouseEvent] {
+          override def handle(event:MouseEvent) {
+            event.consume()
+            fchooser.showOpenMultipleDialog(parent.value.getScene.getWindow) match {
+              case null => Unit
+              case fs => {
+                musicRecItems.clear
+                musicRecItems.addAll(fs.map(f => new MusicRecordItem(f.getName, "mp3")))
+              }
+            }
+          }
+        }
+      },
+      musicRecTable
+    )
+  }
+
   stage = new PrimaryStage {
     title = "Demo ScalaFX Player"
     width = 640
     height = 480
     scene = new Scene {
-      content = new VBox {
-        content = Seq(
-          new Button {
-            text = "Open"
-            onMouseClicked = new EventHandler[MouseEvent] {
-              override def handle(event:MouseEvent) {
-                event.consume()
-                fchooser.showOpenMultipleDialog(scene.value.getWindow) match {
-                  case null => Unit
-                  case fs => {
-                    musicRecItems.clear
-                    musicRecItems.addAll(fs.map(f => new MusicRecordItem(f.getName, "mp3")))
-                  }
-                }
-              }
-            }
-          },
-          musicRecTable
-        )
-      }
-
+      width onChange {mainLayout.setPrefWidth(scene.value.getWidth);}
+      height onChange {mainLayout.setPrefHeight(scene.value.getHeight);}
+      content = mainLayout
     }
   }
 }
