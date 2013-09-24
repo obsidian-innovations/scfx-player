@@ -10,8 +10,8 @@ import scalafx.stage.FileChooser
 import scalafx.beans.property.StringProperty
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control.TableColumn._
-import scalafx.scene.control.{TableColumn, TableView, Button}
-import scalafx.scene.layout.{HBox, Priority, VBox}
+import scalafx.scene.control.{SelectionMode, TableColumn, TableView, Button}
+import scalafx.scene.layout.{Priority, HBox, VBox}
 import scalafx.geometry.Pos
 import scala.collection.JavaConversions._
 
@@ -43,27 +43,32 @@ object Main extends JFXApp {
       }
     )
   }
+  musicRecTable.selectionModel.value.setSelectionMode(SelectionMode.MULTIPLE)
 
   val deleteFilesBtn = new Button {
     text = "Delete"
-    prefHeight = 40
-    vgrow = Priority.NEVER
+    prefHeight = 40 // vgrow policy didn't work, set it directly for now
+    vgrow = Priority.ALWAYS // Doesn't work?!?
+    onMouseClicked = new EventHandler[MouseEvent] {
+      override def handle(event:MouseEvent) {
+        event.consume()
+        val smodel = musicRecTable.selectionModel.value
+        smodel.getSelectedIndices.toList.sortWith((x, y) => x > y).foreach(musicRecItems.remove(_))
+        smodel.clearSelection()
+      }
+    }
   }
 
   val openFilesBtn = new Button {
     text = "Open"
     vgrow = Priority.ALWAYS // Doesn't work?!?
-    managed = true
     prefHeight = 40 // vgrow policy didn't work, set it directly for now
     onMouseClicked = new EventHandler[MouseEvent] {
       override def handle(event:MouseEvent) {
         event.consume()
         fchooser.showOpenMultipleDialog(parent.value.getScene.getWindow) match {
           case null => Unit
-          case fs => {
-            musicRecItems.clear
-            musicRecItems.addAll(fs.map(f => new MusicRecordItem(f.getName, "mp3")))
-          }
+          case fs => musicRecItems.addAll(fs.map(f => new MusicRecordItem(f.getName, "mp3")))
         }
       }
     }
