@@ -13,14 +13,37 @@ import scalafx.scene.control.TableColumn._
 import scalafx.scene.control.{SelectionMode, TableColumn, TableView, Button}
 import scalafx.scene.layout.{Priority, HBox, VBox}
 import scalafx.geometry.Pos
+import scalafx.scene.media.{Media, MediaPlayer, MediaView}
 import scala.collection.JavaConversions._
 
-class MusicRecordItem(fileName_ : String, fileExt_ : String) {
+object MusicRecordItem {
+
+}
+
+class MusicRecordItem(artist_ : String,
+                      album_ : String,
+                      track_ : String,
+                      fileName_ : String) {
+  val artist = new StringProperty(this, "artist", artist_)
+  val album = new StringProperty(this, "album", album_)
+  val track = new StringProperty(this, "track", track_)
   val fileName = new StringProperty(this, "fileName", fileName_)
-  val fileExt = new StringProperty(this, "fileExt", fileExt_)
+  val trackNameMade = new StringProperty(this, "trackNameMade", if(track_ == null) fileName_ else track_)
 }
 
 object Main extends JFXApp {
+
+  val testMp3 = new File("test-data/test.mp3")
+  val media = new Media(testMp3.toURI.toURL.toExternalForm)
+  val mplayer = new MediaPlayer(media)
+  val playerView = new MediaView {
+    mediaPlayer = mplayer
+    fitHeight = 40
+    fitWidth = 300
+    hgrow = Priority.ALWAYS
+    vgrow = Priority.ALWAYS
+    smooth = true
+  }
 
   val fchooser:FileChooser = new FileChooser()
   val f = new FileChooser.ExtensionFilter("MP3 (MPEG-1 or MPEG-2 Audio Layer III)", Seq("*.mp3", "*.MP3"))
@@ -34,14 +57,16 @@ object Main extends JFXApp {
     hgrow = Priority.ALWAYS
     columns ++= List(
       new TableColumn[MusicRecordItem, String] {
-        text = "File Name"
-        cellValueFactory = {_.value.fileName}
-        prefWidth = 180
+        text = "Track"
+        cellValueFactory = {_.value.trackNameMade}
       },
       new TableColumn[MusicRecordItem, String]() {
-        text = "File Extention"
-        cellValueFactory = {_.value.fileExt}
-        prefWidth = 180
+        text = "Album"
+        cellValueFactory = {_.value.album}
+      },
+      new TableColumn[MusicRecordItem, String]() {
+        text = "Artist"
+        cellValueFactory = {_.value.artist}
       }
     )
   }
@@ -70,7 +95,9 @@ object Main extends JFXApp {
         event.consume()
         fchooser.showOpenMultipleDialog(parent.value.getScene.getWindow) match {
           case null => Unit
-          case fs => musicRecItems.addAll(fs.map(f => new MusicRecordItem(f.getName, "mp3")))
+          case fs => { fs.foreach { f => TrackMetaData(f) { md =>
+                musicRecItems += new MusicRecordItem(md.artist, md.album, md.track, f.getName)
+          }}}
         }
       }
     }
@@ -83,7 +110,7 @@ object Main extends JFXApp {
     maxHeight = 40
     prefHeight = 40
     fillHeight = true // Doesn't work?!?
-    content = Seq(openFilesBtn, deleteFilesBtn)
+    content = Seq(openFilesBtn, deleteFilesBtn, playerView)
   }
 
   val mainLayout = new VBox {
