@@ -16,24 +16,20 @@ class MusicRecordItem(val artist_ : Option[String],
   val track = new StringProperty(this, "track", track_.getOrElse(""))
   val fileName = new StringProperty(this, "fileName", fileName_)
   val trackNameMade = new StringProperty(this, "trackNameMade", track_.getOrElse(cutExt(fileName_)))
-  def cutExt(s:String) = s.reverse.dropWhile(_ != '.').drop(1).reverse.toString
+  val duration = new StringProperty(this, "duration", durationToString(duration_))
 
-
+  private def cutExt(s:String) = s.reverse.dropWhile(_ != '.').drop(1).reverse.toString
   private def durationToString(d:Duration):String = {
     val formatter = new PeriodFormatterBuilder()
-      .appendDays()
-      .appendSuffix("d")
       .appendHours()
-      .appendSuffix("h")
+      .appendSuffix(":")
       .appendMinutes()
-      .appendSuffix("m")
+      .appendSuffix(":")
       .appendSeconds()
-      .appendSuffix("s")
+      .appendSuffix("")
       .toFormatter()
     formatter.print(d.toPeriod())
   }
-
-  val duration = new StringProperty(this, "duration", durationToString(duration_))
 
 }
 

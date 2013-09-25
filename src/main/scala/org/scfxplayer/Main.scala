@@ -7,16 +7,12 @@ import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.Scene
 import scalafx.stage.FileChooser
-import scalafx.beans.property.StringProperty
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control.TableColumn._
 import scalafx.scene.control.{SelectionMode, TableColumn, TableView, Button}
 import scalafx.scene.layout.{Priority, HBox, VBox}
 import scalafx.geometry.Pos
 import scalafx.scene.media.{Media, MediaPlayer, MediaView, MediaErrorEvent}
-import scala.collection.JavaConversions._
-
-
 
 object Main extends JFXApp {
 
@@ -46,21 +42,29 @@ object Main extends JFXApp {
     vgrow = Priority.ALWAYS
     hgrow = Priority.ALWAYS
     columns ++= List(
+      new TableColumn[MusicRecordItem, String]() {
+        text = "Duration"
+        prefWidth = 80
+        minWidth = 50
+        cellValueFactory = {_.value.duration}
+      },
       new TableColumn[MusicRecordItem, String] {
         text = "Track"
+        prefWidth = 300
+        minWidth = 50
         cellValueFactory = {_.value.trackNameMade}
       },
       new TableColumn[MusicRecordItem, String]() {
         text = "Album"
+        prefWidth = 120
+        minWidth = 50
         cellValueFactory = {_.value.album}
       },
       new TableColumn[MusicRecordItem, String]() {
         text = "Artist"
+        prefWidth = 120
+        minWidth = 50
         cellValueFactory = {_.value.artist}
-      },
-      new TableColumn[MusicRecordItem, String]() {
-        text = "Duration"
-        cellValueFactory = {_.value.duration}
       }
     )
   }
