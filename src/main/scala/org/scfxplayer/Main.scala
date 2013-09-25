@@ -13,25 +13,24 @@ import scalafx.scene.control.TableColumn._
 import scalafx.scene.control.{SelectionMode, TableColumn, TableView, Button}
 import scalafx.scene.layout.{Priority, HBox, VBox}
 import scalafx.geometry.Pos
-import scalafx.scene.media.{Media, MediaPlayer, MediaView}
+import scalafx.scene.media.{Media, MediaPlayer, MediaView, MediaErrorEvent}
 import scala.collection.JavaConversions._
 
-object MusicRecordItem {
-
-}
-
-class MusicRecordItem(artist_ : String,
-                      album_ : String,
-                      track_ : String,
+class MusicRecordItem(artist_ : Option[String],
+                      album_ : Option[String],
+                      track_ : Option[String],
                       fileName_ : String) {
-  val artist = new StringProperty(this, "artist", artist_)
-  val album = new StringProperty(this, "album", album_)
-  val track = new StringProperty(this, "track", track_)
+  val artist = new StringProperty(this, "artist", artist_.getOrElse(""))
+  val album = new StringProperty(this, "album", album_.getOrElse(""))
+  val track = new StringProperty(this, "track", track_.getOrElse(""))
   val fileName = new StringProperty(this, "fileName", fileName_)
-  val trackNameMade = new StringProperty(this, "trackNameMade", if(track_ == null) fileName_ else track_)
+  val trackNameMade = new StringProperty(this, "trackNameMade", track_.getOrElse(cutExt(fileName_)))
+  def cutExt(s:String) = s.reverse.dropWhile(_ != '.').drop(1).reverse.toString
 }
 
 object Main extends JFXApp {
+
+  import scalafx.Includes._
 
   val testMp3 = new File("test-data/test.mp3")
   val media = new Media(testMp3.toURI.toURL.toExternalForm)
@@ -43,6 +42,7 @@ object Main extends JFXApp {
     hgrow = Priority.ALWAYS
     vgrow = Priority.ALWAYS
     smooth = true
+    onError = (event: MediaErrorEvent) => println("Media view error: " + event)
   }
 
   val fchooser:FileChooser = new FileChooser()
