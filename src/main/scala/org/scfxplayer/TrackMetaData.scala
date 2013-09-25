@@ -2,7 +2,7 @@ package org.scfxplayer
 
 import java.io.File
 import scalafx.scene.media.{MediaPlayer, Media}
-import javafx.util.Duration
+import org.joda.time.Duration
 
 case class TagMetaData(artist:Option[String],
                        track:Option[String],
@@ -25,7 +25,7 @@ object TrackMetaData {
         artist = Option(metadata.get(TagMetaData.ARTIST).asInstanceOf[String]),
         track = Option(metadata.get(TagMetaData.TRACK).asInstanceOf[String]),
         album = Option(metadata.get(TagMetaData.ALBUM).asInstanceOf[String]),
-        duration = media.getDuration
+        duration = new Duration(media.getDuration.toMillis.toLong)
       )
       onTrackMetaReady(tag)
     }

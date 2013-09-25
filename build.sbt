@@ -10,6 +10,8 @@ assemblySettings
 
 libraryDependencies ++= Seq(
                            "org.specs2" %% "specs2" % "2.2.2" % "test",
+                            "joda-time" % "joda-time" % "2.3",
+                            "org.joda" % "joda-convert" % "1.4",
 //to be removed
 //                            "org" % "jaudiotagger" % "2.0.3",
 // current stuff
