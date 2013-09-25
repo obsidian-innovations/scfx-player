@@ -16,17 +16,7 @@ import scalafx.geometry.Pos
 import scalafx.scene.media.{Media, MediaPlayer, MediaView, MediaErrorEvent}
 import scala.collection.JavaConversions._
 
-class MusicRecordItem(artist_ : Option[String],
-                      album_ : Option[String],
-                      track_ : Option[String],
-                      fileName_ : String) {
-  val artist = new StringProperty(this, "artist", artist_.getOrElse(""))
-  val album = new StringProperty(this, "album", album_.getOrElse(""))
-  val track = new StringProperty(this, "track", track_.getOrElse(""))
-  val fileName = new StringProperty(this, "fileName", fileName_)
-  val trackNameMade = new StringProperty(this, "trackNameMade", track_.getOrElse(cutExt(fileName_)))
-  def cutExt(s:String) = s.reverse.dropWhile(_ != '.').drop(1).reverse.toString
-}
+
 
 object Main extends JFXApp {
 
@@ -67,6 +57,10 @@ object Main extends JFXApp {
       new TableColumn[MusicRecordItem, String]() {
         text = "Artist"
         cellValueFactory = {_.value.artist}
+      },
+      new TableColumn[MusicRecordItem, String]() {
+        text = "Duration"
+        cellValueFactory = {_.value.duration}
       }
     )
   }
@@ -96,7 +90,7 @@ object Main extends JFXApp {
         fchooser.showOpenMultipleDialog(parent.value.getScene.getWindow) match {
           case null => Unit
           case fs => { fs.foreach { f => TrackMetaData(f) { md =>
-                musicRecItems += new MusicRecordItem(md.artist, md.album, md.track, f.getName)
+                musicRecItems += new MusicRecordItem(md.artist, md.album, md.track, md.duration, f.getName)
           }}}
         }
       }

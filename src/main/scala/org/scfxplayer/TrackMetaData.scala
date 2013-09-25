@@ -2,8 +2,13 @@ package org.scfxplayer
 
 import java.io.File
 import scalafx.scene.media.{MediaPlayer, Media}
+import javafx.util.Duration
 
-case class TagMetaData(artist:Option[String],track:Option[String],album:Option[String])
+case class TagMetaData(artist:Option[String],
+                       track:Option[String],
+                       album:Option[String],
+                       duration:Duration)
+
 object TagMetaData {
   val ARTIST = "artist"
   val TRACK = "title"
@@ -19,7 +24,8 @@ object TrackMetaData {
       val tag = TagMetaData(
         artist = Option(metadata.get(TagMetaData.ARTIST).asInstanceOf[String]),
         track = Option(metadata.get(TagMetaData.TRACK).asInstanceOf[String]),
-        album = Option(metadata.get(TagMetaData.ALBUM).asInstanceOf[String])
+        album = Option(metadata.get(TagMetaData.ALBUM).asInstanceOf[String]),
+        duration = media.getDuration
       )
       onTrackMetaReady(tag)
     }
