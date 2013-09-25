@@ -25,6 +25,8 @@ object Main extends JFXApp {
   val fchooser:FileChooser = new FileChooser()
   val f = new FileChooser.ExtensionFilter("MP3 (MPEG-1 or MPEG-2 Audio Layer III)", Seq("*.mp3", "*.MP3"))
   fchooser.getExtensionFilters.addAll(f)
+  fchooser.setTitle("Demo ScalaFX Player")
+  fchooser.setInitialDirectory(new File(System.getProperty("user.home")))
 
   val musicRecItems = ObservableBuffer[MusicRecordItem]()
   val musicRecTable = new TableView[MusicRecordItem](musicRecItems) {
