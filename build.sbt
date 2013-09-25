@@ -8,10 +8,18 @@ scalaVersion := "2.10.2"
 
 assemblySettings
 
+resolvers ++= Seq(
+    "Mandubian repository snapshots" at "https://github.com/mandubian/mandubian-mvn/raw/master/snapshots/",
+    "Mandubian repository releases" at "https://github.com/mandubian/mandubian-mvn/raw/master/releases/"
+    )
+
+
+
 libraryDependencies ++= Seq(
                            "org.specs2" %% "specs2" % "2.2.2" % "test",
                             "joda-time" % "joda-time" % "2.3",
                             "org.joda" % "joda-convert" % "1.4",
+                            "play" %% "play-json" % "2.2-SNAPSHOT",
 //to be removed
 //                            "org" % "jaudiotagger" % "2.0.3",
 // current stuff
