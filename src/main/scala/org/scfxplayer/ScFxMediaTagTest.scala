@@ -15,34 +15,7 @@ import scalafx.scene.control.{TableColumn, TableView, Button}
 import scalafx.scene.layout.{HBox, Priority, VBox}
 import scalafx.geometry.Pos
 import scala.collection.JavaConversions._
-import scala.collection.mutable.{Map => MMap, HashMap => MHashMap, SynchronizedMap}
 
-case class TagMetaData(artist:String,track:String,album:String)
-object TagMetaData {
-  val ARTIST = "artist"
-  val TRACK = "title"
-  val ALBUM = "album"
-}
-
-object MetaData {
-  def apply(file: File)(f: TagMetaData => Unit):Unit = {
-    //val file = new File(fname)
-
-    val m = new Media(file.toURI.toString)
-    val mediaPlayer = new MediaPlayer(m)
-
-    mediaPlayer.onReady = {
-      val mt = m.metadata
-      println(mt)
-      val tag = TagMetaData(
-        artist = mt.get(TagMetaData.ARTIST).asInstanceOf[String],
-        track = mt.get(TagMetaData.TRACK).asInstanceOf[String],
-        album = mt.get(TagMetaData.ALBUM).asInstanceOf[String]
-      )
-      f(tag)
-    }
-  }
-}
 
 class TMusicRecordItem( fileName_ : String,
                         artist_ : String,
@@ -96,8 +69,7 @@ object TMain extends JFXApp {
           case null => Unit
           case fs => {
             musicRecItems.clear
-            val tmp = new MHashMap[Int,TMusicRecordItem] with SynchronizedMap[Int,TMusicRecordItem] {}
-            fs.map{ f => MetaData(f){ md =>
+            fs.map{ f => TrackMetaData(f){ md =>
               musicRecItems += new TMusicRecordItem(f.getName, md.artist,md.track,md.album)
             }}
           }
