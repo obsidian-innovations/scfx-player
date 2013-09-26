@@ -34,9 +34,26 @@ object PlayListManager {
     }
   }
 
-  def open(filename:String):Try[PlayList] = Try {
-    val lines = scala.io.Source.fromFile(filename,"UTF-8").mkString
-    Json.parse(lines).as[PlayList]
+  private def readFile(file:String ):Try[String] = Try {
+    val reader = new java.io.BufferedReader( new java.io.FileReader(file))
+    var line:String = null;
+    val stringBuilder = new StringBuilder();
+    val ls = System.getProperty("line.separator");
+    line = reader.readLine()
+    while( line != null ) {
+      stringBuilder.append( line );
+      stringBuilder.append( ls );
+      line = reader.readLine()
+    }
+
+    stringBuilder.toString();
+  }
+
+  def open(filename:String):Try[PlayList] =  {
+    //val lines = scala.io.Source.fromFile(filename,"UTF-8").mkString
+    readFile(filename).map{ lines =>
+      Try(Json.parse(lines).as[PlayList])
+    }.flatten
   }
 
   val playerHomeName = ".scfx-player"
