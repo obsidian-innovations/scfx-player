@@ -5,12 +5,13 @@ import org.joda.time.Duration
 import org.joda.time.format.PeriodFormatterBuilder
 
 import play.api.libs.json._
+import scala.util.Try
 
-class MusicRecordItem(val artist_ : Option[String],
-                      val album_ : Option[String],
-                      val track_ : Option[String],
-                      val duration_ : Duration,
-                      val fileName_ : String) {
+case class MusicRecordItem(artist_ : Option[String],
+                      album_ : Option[String],
+                      track_ : Option[String],
+                      duration_ : Duration,
+                      fileName_ : String) {
   val artist = new StringProperty(this, "artist", artist_.getOrElse(""))
   val album = new StringProperty(this, "album", album_.getOrElse(""))
   val track = new StringProperty(this, "track", track_.getOrElse(""))
@@ -30,6 +31,7 @@ class MusicRecordItem(val artist_ : Option[String],
       .toFormatter()
     formatter.print(d.toPeriod())
   }
+
 
 }
 
@@ -57,7 +59,7 @@ object MusicRecordItem {
       album <- (json \ jsAlbum).validate[Option[String]]
       duration <- (json \ jsDuration).validate[Duration]
       filename <- (json \ jsFileName).validate[String]
-    } yield new MusicRecordItem(artist,track,album,duration,filename)
+    } yield new MusicRecordItem(artist,album,track,duration,filename)
 
     def writes(o: MusicRecordItem): JsValue = obj(
       jsArtist -> o.artist_, jsTrack -> o.track_,
@@ -66,7 +68,7 @@ object MusicRecordItem {
     )
   }
 
-  def save(filename:String, items:List[MusicRecordItem]):Either[String,Unit] = {
+  def save(filename:String, items:List[MusicRecordItem]):Try[Unit] = Try {
     import Writes._
     val playlist = Json.stringify(Json.toJson(items))
     val output = new java.io.PrintWriter(new java.io.File(filename))
@@ -75,6 +77,10 @@ object MusicRecordItem {
     } finally {
       output.close()
     }
-    Right(())
+  }
+
+  def open(filename:String):Try[List[MusicRecordItem]] = Try {
+    val lines = scala.io.Source.fromFile(filename).mkString
+    Json.parse(lines).as[List[MusicRecordItem]]
   }
 }
