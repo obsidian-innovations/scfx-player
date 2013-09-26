@@ -180,9 +180,9 @@ object Main extends JFXApp {
   }
 
   def loadFiles(fs:Seq[java.io.File]) = {
-    fs.foreach { f => TrackMetaData(f) { md =>
+    fs.foreach { f => TrackMetaData(f) { mdTry => mdTry.foreach{ md =>
       musicRecItems += new MusicRecordItem(md.artist, md.album, md.track, md.duration, f.getName, f.getAbsolutePath)
-    }}
+    }}}
   }
 
   def loadDefaultPlaylist():Unit = {
