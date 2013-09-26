@@ -2,6 +2,7 @@ package org.scfxplayer
 
 import scala.util.Try
 import play.api.libs.json._
+import org.apache.commons.codec.binary.Base64
 
 
 case class PlayList(files:List[String])
@@ -13,9 +14,11 @@ object PlayList {
   import Writes._
 
   implicit val format = new Format[PlayList] {
-    def reads(json: JsValue): JsResult[PlayList] = (json \ jsFiles).validate[List[String]].map(PlayList(_))
+    def reads(json: JsValue): JsResult[PlayList] = (json \ jsFiles).validate[List[String]].map(PlayList(_)).map { pl =>
+      pl.copy(files = pl.files.map(s => new String(Base64.decodeBase64(s))))
+    }
 
-    def writes(o: PlayList): JsValue = obj(jsFiles -> o.files)
+    def writes(o: PlayList): JsValue = obj(jsFiles -> o.files.map(s => new String(Base64.encodeBase64(s.getBytes))))
   }
 }
 
