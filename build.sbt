@@ -33,6 +33,7 @@ libraryDependencies ++= Seq(
 //unmanagedJars in Compile += Attributed.blank(file(System.getenv("JAVA_HOME") + "/jre/lib/jfxrt.jar"))
 unmanagedJars in Compile += Attributed.blank(file(scala.util.Properties.javaHome) / "lib" / "jfxrt.jar")
 
+javaOptions += "-Dfile.encoding=UTF-8"
 
 mainClass in (Compile, run) := Some("org.scfxplayer.Main")
 
