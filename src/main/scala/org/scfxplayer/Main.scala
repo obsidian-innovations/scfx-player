@@ -135,9 +135,7 @@ object Main extends JFXApp {
       override def handle(event:MouseEvent) {
         event.consume()
         Try(fchooser.showOpenMultipleDialog(parent.value.getScene.getWindow)).map { fs =>
-          fs.foreach { f => TrackMetaData(f) { md =>
-            musicRecItems += new MusicRecordItem(md.artist, md.album, md.track, md.duration, f.getName)
-          }}
+          loadFiles(fs)
         }
       }
     }
@@ -174,15 +172,22 @@ object Main extends JFXApp {
       height onChange {mainLayout.setPrefHeight(scene.value.getHeight);}
       content = mainLayout
       onCloseRequest = (event:WindowEvent) => {
-        PlayListManager.saveToDefault(musicRecItems.toList)
+        val pl = PlayList(musicRecItems.map(_.fullPath).toList)
+        PlayListManager.saveToDefault(pl)
       }
       onShowing = (event:WindowEvent) => { loadDefaultPlaylist() }
     }
   }
 
+  def loadFiles(fs:Seq[java.io.File]) = {
+    fs.foreach { f => TrackMetaData(f) { md =>
+      musicRecItems += new MusicRecordItem(md.artist, md.album, md.track, md.duration, f.getName, f.getAbsolutePath)
+    }}
+  }
+
   def loadDefaultPlaylist():Unit = {
     PlayListManager.openDefault().map{ playlist =>
-      musicRecItems.addAll(playlist: _*) //varargs method
+      loadFiles(playlist.files.map(new java.io.File(_)))
     }
   }
 

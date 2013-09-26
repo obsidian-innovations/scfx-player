@@ -5,12 +5,10 @@ import org.joda.time.Duration
 import play.api.libs.json.{Json, Reads, Writes}
 
 class PlayListManagerSpec extends Specification {
-  val m1 = new MusicRecordItem(Some("Artist 1"),
-    Some("Album 1"),Some("Track 1"),new Duration(1000 * 60),"/home/test1")
+  val m1 ="/home/test1"
 
-  val m2 = new MusicRecordItem(Some("Artist 2"),
-    Some("Album 2"),Some("Track 2"),new Duration(1000 * 30),"/home/test2")
-  val playlist = List(m1,m2)
+  val m2 = "/home/test2"
+  val playlist = PlayList(List(m1,m2))
 
 
   "Playlist manager" should {
@@ -18,7 +16,7 @@ class PlayListManagerSpec extends Specification {
       import Writes._
       import Reads._
       val plStr = Json.stringify(Json.toJson(playlist))
-      Json.parse(plStr).asOpt[List[MusicRecordItem]] must beSome(playlist)
+      Json.parse(plStr).asOpt[PlayList] must beSome(playlist)
     }
 
     "save and load from file" in {

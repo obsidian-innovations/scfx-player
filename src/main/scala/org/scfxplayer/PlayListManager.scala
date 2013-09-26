@@ -4,8 +4,23 @@ import scala.util.Try
 import play.api.libs.json._
 
 
+case class PlayList(files:List[String])
+object PlayList {
+  val jsFiles = "items"
+
+  import Json._
+  import Reads._
+  import Writes._
+
+  implicit val format = new Format[PlayList] {
+    def reads(json: JsValue): JsResult[PlayList] = (json \ jsFiles).validate[List[String]].map(PlayList(_))
+
+    def writes(o: PlayList): JsValue = obj(jsFiles -> o.files)
+  }
+}
+
 object PlayListManager {
-  def save(filename:String, items:List[MusicRecordItem]):Try[Unit] = Try {
+  def save(filename:String, items:PlayList):Try[Unit] = Try {
     import Writes._
     val playlist = Json.stringify(Json.toJson(items))
     val output = new java.io.PrintWriter(new java.io.File(filename))
@@ -16,9 +31,9 @@ object PlayListManager {
     }
   }
 
-  def open(filename:String):Try[List[MusicRecordItem]] = Try {
-    val lines = scala.io.Source.fromFile(filename).mkString
-    Json.parse(lines).as[List[MusicRecordItem]]
+  def open(filename:String):Try[PlayList] = Try {
+    val lines = scala.io.Source.fromFile(filename,"UTF-8").mkString
+    Json.parse(lines).as[PlayList]
   }
 
   val playerHomeName = ".scfx-player"
@@ -39,8 +54,8 @@ object PlayListManager {
     playerHome.getAbsolutePath + fileSep + defaultPlaylistName
   }
 
-  def saveToDefault(playlist:List[MusicRecordItem]):Try[Unit] = defaultLocation().flatMap(loc => save(loc,playlist))
+  def saveToDefault(playlist:PlayList):Try[Unit] = defaultLocation().flatMap(loc => save(loc,playlist))
 
-  def openDefault():Try[List[MusicRecordItem]] = defaultLocation().flatMap(loc => open(loc))
+  def openDefault():Try[PlayList] = defaultLocation().flatMap(loc => open(loc))
 
 }
