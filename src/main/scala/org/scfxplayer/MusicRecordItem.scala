@@ -68,19 +68,5 @@ object MusicRecordItem {
     )
   }
 
-  def save(filename:String, items:List[MusicRecordItem]):Try[Unit] = Try {
-    import Writes._
-    val playlist = Json.stringify(Json.toJson(items))
-    val output = new java.io.PrintWriter(new java.io.File(filename))
-    try {
-      output.write(playlist)
-    } finally {
-      output.close()
-    }
-  }
 
-  def open(filename:String):Try[List[MusicRecordItem]] = Try {
-    val lines = scala.io.Source.fromFile(filename).mkString
-    Json.parse(lines).as[List[MusicRecordItem]]
-  }
 }

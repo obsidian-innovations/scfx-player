@@ -12,7 +12,6 @@ class MusicRecordItemSpec extends Specification {
     val m2 = new MusicRecordItem(Some("Artist 2"),
       Some("Album 2"),Some("Track 2"),new Duration(1000 * 30),"/home/test2")
 
-    val playlist = List(m1,m2)
 
 
     "encode and decode the same object as Json " in {
@@ -20,17 +19,6 @@ class MusicRecordItemSpec extends Specification {
       Json.parse(m1Str).asOpt[MusicRecordItem] must beSome(m1)
     }
 
-    "encode and decode a playlist as Json " in {
-      import Writes._
-      import Reads._
-      val plStr = Json.stringify(Json.toJson(playlist))
-      Json.parse(plStr).asOpt[List[MusicRecordItem]] must beSome(playlist)
-    }
 
-    "save and load from file" in {
-      val file = java.io.File.createTempFile("tmp-play","json")
-      MusicRecordItem.save(file.getAbsolutePath,playlist) must beSuccessfulTry
-      MusicRecordItem.open(file.getAbsolutePath) must beSuccessfulTry.withValue(playlist)
-    }
   }
 }
