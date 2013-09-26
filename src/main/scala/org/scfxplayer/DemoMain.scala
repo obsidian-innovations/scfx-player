@@ -14,6 +14,7 @@ import scalafx.util.Duration
 import scalafx.geometry.Pos
 import scala.util.Try
 import scalafx.event
+import scala.annotation.tailrec
 
 // *************** Some reading material **************** //
 //http://search.maven.org/#search%7Cga%7C1%7Cscalafx
@@ -28,12 +29,13 @@ object DemoMain extends JFXApp {
 
   val files = List(new File("test-data/test.mp3"), new File("test-data/test.mp3"), new File("test-data/test.mp3"))
 
-  def playPlaylist(pl:List[File]) {
-    pl.headOption.map { f => if(f.exists) {
+  def playPlaylist(toPlay:Option[File], pl:List[File]) {
+    toPlay.map { f => if(f.exists) {
       val media = new Media(f.toURI.toURL.toExternalForm)
       val mplayer = new MediaPlayer(media)
       mplayer.onReady = onPlayerReady(mplayer)
       mplayer.onEndOfMedia = {
+        playPlaylist(pl.dropWhile(x => x.getAbsolutePath != f.getAbsolutePath).drop(1).headOption, pl)
       }
     }}
   }
@@ -48,7 +50,7 @@ object DemoMain extends JFXApp {
     prefWidth = 100
     onMouseClicked = (event:MouseEvent) => {
       event.consume()
-      playPlaylist(files)
+      playPlaylist(files.headOption, files)
     }
   }
 
