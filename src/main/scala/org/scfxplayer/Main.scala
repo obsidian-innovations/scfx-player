@@ -10,11 +10,12 @@ import scalafx.stage.{FileChooser, WindowEvent}
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control.TableColumn._
 import scalafx.scene.control._
-import scalafx.scene.layout.{Priority, HBox, VBox}
+import scalafx.scene.layout.{Region, Priority, HBox, VBox}
 import scalafx.geometry.{Side, Pos}
 import scalafx.Includes._
 import javafx.scene.control.CheckMenuItem
 import scalafx.event.{Event, ActionEvent}
+import scala.util.Try
 
 //import scalafx.scene.media.{Media, MediaPlayer, MediaView, MediaErrorEvent}
 
@@ -91,14 +92,21 @@ object Main extends JFXApp {
   initPlaylistMenuItem(artistMenuItem, artistColumn)
   val playListSettingsMnu:ContextMenu = new ContextMenu {
     style = "-fx-background-radius: 10 0 10 10; -fx-border-color: white; -fx-border-radius: 10 0 10 10;"
+    autoHide  = true
     items ++= List(durationMenuItem, trackMenuItem, albumMenuItem, artistMenuItem)
   }
   val playlistSettingsBtn:Button = new Button {
     text = "..."
+    prefHeight = 40
+    prefWidth = 40
     onMouseClicked = new EventHandler[MouseEvent] {
       override def handle(event:MouseEvent) {
         event.consume()
-        playListSettingsMnu.show(parent.value.getScene.content.head, Side.LEFT, event.getSceneX, event.getSceneY)
+        val topNode = parent.value.getScene.content.head
+        if(!playListSettingsMnu.showing.value)
+          playListSettingsMnu.show(topNode, Side.LEFT, event.getSceneX, event.getSceneY)
+        else
+          playListSettingsMnu.hide()
       }
     }
   }
@@ -125,14 +133,17 @@ object Main extends JFXApp {
     onMouseClicked = new EventHandler[MouseEvent] {
       override def handle(event:MouseEvent) {
         event.consume()
-        fchooser.showOpenMultipleDialog(parent.value.getScene.getWindow) match {
-          case null => Unit
-          case fs => { fs.foreach { f => TrackMetaData(f) { md =>
-                musicRecItems += new MusicRecordItem(md.artist, md.album, md.track, md.duration, f.getName)
-          }}}
+        Try(fchooser.showOpenMultipleDialog(parent.value.getScene.getWindow)).map { fs =>
+          fs.foreach { f => TrackMetaData(f) { md =>
+            musicRecItems += new MusicRecordItem(md.artist, md.album, md.track, md.duration, f.getName)
+          }}
         }
       }
     }
+  }
+
+  val playerStub = new Region {
+    hgrow = Priority.ALWAYS
   }
 
   val playerControlsLayout = new HBox {
@@ -142,7 +153,7 @@ object Main extends JFXApp {
     maxHeight = 40
     prefHeight = 40
     fillHeight = true // Doesn't work?!?
-    content ++= List(openFilesBtn, deleteFilesBtn, playlistSettingsBtn)
+    content ++= List(openFilesBtn, deleteFilesBtn, playerStub, playlistSettingsBtn)
   }
 
   val mainLayout = new VBox {
@@ -153,6 +164,8 @@ object Main extends JFXApp {
 
   stage = new PrimaryStage {
     title = "Demo ScalaFX Player"
+    minHeight = 300
+    minWidth = 400
     width = 640
     height = 480
     scene = new Scene {
