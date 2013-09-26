@@ -17,6 +17,7 @@ import javafx.scene.control.CheckMenuItem
 import scalafx.event.{Event, ActionEvent}
 import scala.util.Try
 
+
 //import scalafx.scene.media.{Media, MediaPlayer, MediaView, MediaErrorEvent}
 
 object Main extends JFXApp {
@@ -172,7 +173,17 @@ object Main extends JFXApp {
       width onChange {mainLayout.setPrefWidth(scene.value.getWidth);}
       height onChange {mainLayout.setPrefHeight(scene.value.getHeight);}
       content = mainLayout
-      onCloseRequest = (event:WindowEvent) => {}
+      onCloseRequest = (event:WindowEvent) => {
+        PlayListManager.saveToDefault(musicRecItems.toList)
+      }
+      onShowing = (event:WindowEvent) => { loadDefaultPlaylist() }
     }
   }
+
+  def loadDefaultPlaylist():Unit = {
+    PlayListManager.openDefault().map{ playlist =>
+      musicRecItems.addAll(playlist: _*) //varargs method
+    }
+  }
+
 }
