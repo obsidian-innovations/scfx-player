@@ -27,17 +27,20 @@ object DemoMain extends JFXApp {
 
   import scalafx.Includes._
 
-  val files = List(new File("test-data/test.mp3"), new File("test-data/test.mp3"), new File("test-data/test.mp3"))
+  val files = List(new File("test-data/test.mp3"), new File("test-data/test2.mp3"))
 
   def playPlaylist(toPlay:Option[File], pl:List[File]) {
-    toPlay.map { f => if(f.exists) {
-      val media = new Media(f.toURI.toURL.toExternalForm)
-      val mplayer = new MediaPlayer(media)
-      mplayer.onReady = onPlayerReady(mplayer)
-      mplayer.onEndOfMedia = {
-        playPlaylist(pl.dropWhile(x => x.getAbsolutePath != f.getAbsolutePath).drop(1).headOption, pl)
-      }
-    }}
+    (toPlay.headOption orElse pl.headOption).map { f =>
+      (for {
+        media <- Try(new Media(f.toURI.toURL.toExternalForm))
+        mplayer <- Try(new MediaPlayer(media))
+      } yield {
+        mplayer.onReady = onPlayerReady(mplayer)
+        mplayer.onEndOfMedia = { mplayer.stop(); scheduleNextPlay(f, pl) }
+        mplayer.onError = { mplayer.stop(); scheduleNextPlay(f, pl) }
+        mplayer.onStalled = { mplayer.stop(); scheduleNextPlay(f, pl) }
+      }).getOrElse(scheduleNextPlay(f, pl))
+    }
   }
 
   val timePosSlider = new Slider {
@@ -52,6 +55,13 @@ object DemoMain extends JFXApp {
       event.consume()
       playPlaylist(files.headOption, files)
     }
+  }
+
+  def scheduleNextPlay(played:File, pl:List[File]) {
+    val nextToPlay = pl.dropWhile { x =>
+      x.getAbsolutePath != played.getAbsolutePath
+    }.drop(1).headOption
+    playPlaylist(nextToPlay, pl)
   }
 
   def isPlaying(p:MediaPlayer) = p.status.value.toString == MediaPlayer.Status.PLAYING.toString()
