@@ -78,4 +78,5 @@ object PlayListManager {
 
   def openDefault():Try[PlayList] = defaultLocation().flatMap(loc => open(loc))
 
+
 }

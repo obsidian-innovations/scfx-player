@@ -181,7 +181,8 @@ object Main extends JFXApp {
 
   def loadFiles(fs:Seq[java.io.File]) = {
     fs.foreach { f => TrackMetaData(f) { mdTry => mdTry.foreach{ md =>
-      musicRecItems += new MusicRecordItem(md.artist, md.album, md.track, md.duration, f.getName, f.getAbsolutePath)
+      val item = new MusicRecordItem(md.artist, md.album, md.track, md.duration, f.getName, f.getAbsolutePath)
+      if(!musicRecItems.map(_.fullPath).contains(item.fullPath)) { musicRecItems += item }
     }}}
   }
 
