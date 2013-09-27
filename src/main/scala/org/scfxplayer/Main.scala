@@ -43,7 +43,8 @@ object Main extends JFXApp {
 
   val musicRecItems = ObservableBuffer[MusicRecordItem]()
 
-  val musicRecTable = PlayListWidget(musicRecItems)
+  val playList = new PlayListWidget(musicRecItems)
+  val musicRecTable = playList.tableView()
 
 
 
@@ -55,10 +56,10 @@ object Main extends JFXApp {
       override def handle(event:MouseEvent) {
         event.consume()
         val topNode = parent.value.getScene.content.head
-        if(!PlayListWidget.playListSettingsMnu.showing.value)
-          PlayListWidget.playListSettingsMnu.show(topNode, Side.LEFT, event.getSceneX, event.getSceneY)
+        if(!playList.playListSettingsMnu.showing.value)
+          playList.playListSettingsMnu.show(topNode, Side.LEFT, event.getSceneX, event.getSceneY)
         else
-          PlayListWidget.playListSettingsMnu.hide()
+          playList.playListSettingsMnu.hide()
       }
     }
   }
