@@ -66,7 +66,7 @@ object PlayListWidget {
 
   import scalafx.Includes._
 
-
+  //https://forums.oracle.com/thread/2413845
   def setupDragAndDrop(musicRecItems:ObservableBuffer[MusicRecordItem],tableView:TableView[MusicRecordItem]):TableView[MusicRecordItem] = {
     tableView.onMouseClicked = (event:MouseEvent) => {
       if(event.getClickCount()==2){ // double click
