@@ -42,60 +42,11 @@ object Main extends JFXApp {
   fchooser.setInitialDirectory(new File(System.getProperty("user.home")))
 
   val musicRecItems = ObservableBuffer[MusicRecordItem]()
-  val durationColumn = new TableColumn[MusicRecordItem, String]() {
-    text = "Duration"
-    prefWidth = 80
-    minWidth = 50
-    cellValueFactory = {_.value.duration}
-  }
-  val trackColumn = new TableColumn[MusicRecordItem, String] {
-    text = "Track"
-    prefWidth = 300
-    minWidth = 50
-    cellValueFactory = {_.value.trackNameMade}
-  }
-  val albumColumn = new TableColumn[MusicRecordItem, String]() {
-    text = "Album"
-    prefWidth = 120
-    minWidth = 50
-    cellValueFactory = {_.value.album}
-  }
-  val artistColumn = new TableColumn[MusicRecordItem, String]() {
-    text = "Artist"
-    prefWidth = 120
-    minWidth = 50
-    cellValueFactory = {_.value.artist}
-  }
-  val musicRecTable = new TableView[MusicRecordItem](musicRecItems) {
-    vgrow = Priority.ALWAYS
-    hgrow = Priority.ALWAYS
-    columns ++= List(durationColumn, trackColumn, albumColumn, artistColumn)
-  }
-  musicRecTable.selectionModel.value.setSelectionMode(SelectionMode.MULTIPLE)
 
-  def initPlaylistMenuItem(i:CheckMenuItem, c:TableColumn[_,_]):Unit = {
-    i.setSelected(true)
-    i.setOnAction(
-      new EventHandler[javafx.event.ActionEvent] {
-        override def handle(event:javafx.event.ActionEvent) {
-          event.consume()
-          c.setVisible(i.isSelected)
-        }
-      })
-  }
-  val durationMenuItem = new CheckMenuItem("Duration")
-  initPlaylistMenuItem(durationMenuItem, durationColumn)
-  val trackMenuItem = new CheckMenuItem("Track")
-  initPlaylistMenuItem(trackMenuItem, trackColumn)
-  val albumMenuItem = new CheckMenuItem("Album")
-  initPlaylistMenuItem(albumMenuItem, albumColumn)
-  val artistMenuItem = new CheckMenuItem("Artist")
-  initPlaylistMenuItem(artistMenuItem, artistColumn)
-  val playListSettingsMnu:ContextMenu = new ContextMenu {
-    style = "-fx-background-radius: 10 0 10 10; -fx-border-color: white; -fx-border-radius: 10 0 10 10;"
-    autoHide  = true
-    items ++= List(durationMenuItem, trackMenuItem, albumMenuItem, artistMenuItem)
-  }
+  val musicRecTable = PlayListWidget(musicRecItems)
+
+
+
   val playlistSettingsBtn:Button = new Button {
     text = "..."
     prefHeight = 40
@@ -104,10 +55,10 @@ object Main extends JFXApp {
       override def handle(event:MouseEvent) {
         event.consume()
         val topNode = parent.value.getScene.content.head
-        if(!playListSettingsMnu.showing.value)
-          playListSettingsMnu.show(topNode, Side.LEFT, event.getSceneX, event.getSceneY)
+        if(!PlayListWidget.playListSettingsMnu.showing.value)
+          PlayListWidget.playListSettingsMnu.show(topNode, Side.LEFT, event.getSceneX, event.getSceneY)
         else
-          playListSettingsMnu.hide()
+          PlayListWidget.playListSettingsMnu.hide()
       }
     }
   }
