@@ -22,19 +22,6 @@ import scala.util.Try
 
 object Main extends JFXApp {
 
-//  val testMp3 = new File("test-data/test.mp3")
-//  val media = new Media(testMp3.toURI.toURL.toExternalForm)
-//  val mplayer = new MediaPlayer(media)
-//  val playerView = new MediaView {
-//    mediaPlayer = mplayer
-//    fitHeight = 40
-//    fitWidth = 300
-//    hgrow = Priority.ALWAYS
-//    vgrow = Priority.ALWAYS
-//    smooth = true
-//    onError = (event: MediaErrorEvent) => println("Media view error: " + event)
-//  }
-
   val fchooser:FileChooser = new FileChooser()
   val f = new FileChooser.ExtensionFilter("MP3 (MPEG-1 or MPEG-2 Audio Layer III)", Seq("*.mp3", "*.MP3"))
   fchooser.getExtensionFilters.addAll(f)
@@ -42,10 +29,16 @@ object Main extends JFXApp {
   fchooser.setInitialDirectory(new File(System.getProperty("user.home")))
 
   val musicRecItems = ObservableBuffer[MusicRecordItem]()
-
   val musicRecTable = PlayListWidget(musicRecItems)
 
-
+  val playerControls = new PlayerControls(musicRecItems) {
+    prefHeight = 40
+    minHeight = 40
+    maxHeight = 40
+    alignment = Pos.CENTER
+    hgrow = Priority.ALWAYS
+    vgrow = Priority.ALWAYS
+  }
 
   val playlistSettingsBtn:Button = new Button {
     text = "..."
@@ -92,9 +85,9 @@ object Main extends JFXApp {
     }
   }
 
-  val playerStub = new Region {
-    hgrow = Priority.ALWAYS
-  }
+//  val playerStub = new Region {
+//    hgrow = Priority.ALWAYS
+//  }
 
   val playerControlsLayout = new HBox {
     hgrow = Priority.ALWAYS
@@ -103,7 +96,7 @@ object Main extends JFXApp {
     maxHeight = 40
     prefHeight = 40
     fillHeight = true // Doesn't work?!?
-    content ++= List(openFilesBtn, deleteFilesBtn, playerStub, playlistSettingsBtn)
+    content ++= List(openFilesBtn, deleteFilesBtn, playerControls, playlistSettingsBtn)
   }
 
   val mainLayout = new VBox {
