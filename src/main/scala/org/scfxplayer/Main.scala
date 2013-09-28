@@ -12,15 +12,13 @@ import scalafx.scene.control.TableColumn._
 import scalafx.scene.control._
 import scalafx.scene.layout.{Region, Priority, HBox, VBox}
 import scalafx.geometry.{Side, Pos}
-import scalafx.Includes._
 import javafx.scene.control.CheckMenuItem
 import scalafx.event.{Event, ActionEvent}
 import scala.util.Try
-
-
-//import scalafx.scene.media.{Media, MediaPlayer, MediaView, MediaErrorEvent}
+import scalafx.collections.ObservableBuffer.Remove
 
 object Main extends JFXApp {
+  import scalafx.Includes._
 
   val fchooser:FileChooser = new FileChooser()
   val f = new FileChooser.ExtensionFilter("MP3 (MPEG-1 or MPEG-2 Audio Layer III)", Seq("*.mp3", "*.MP3"))
@@ -28,11 +26,35 @@ object Main extends JFXApp {
   fchooser.setTitle("Demo ScalaFX Player")
   fchooser.setInitialDirectory(new File(System.getProperty("user.home")))
 
+  def onRemovingItems(idx:Int, els:Traversable[MusicRecordItem]) = {
+    els.filter(x => playerControls.isPlaying(x) && x.isMarkedDeleted).foreach(_ => playerControls.stop())
+    if(musicRecItems.size == 0) {
+      playerControls.disable = true
+      deleteFilesBtn.disable = true
+    }
+  }
+
+  def onAddingItems(idx:Int, els:Traversable[MusicRecordItem]) = {
+    if(musicRecItems.size > 0) {
+      playerControls.disable = false
+      deleteFilesBtn.disable = false
+    }
+  }
+
   val musicRecItems = ObservableBuffer[MusicRecordItem]()
-
+  musicRecItems.onChange {
+    (_, changes) => {
+      for (change <- changes) change match {
+        case ObservableBuffer.Remove(position, els) =>
+          onRemovingItems(position, els.asInstanceOf[Traversable[MusicRecordItem]])
+        case ObservableBuffer.Add(position, els) =>
+          onAddingItems(position, els.asInstanceOf[Traversable[MusicRecordItem]])
+        case _ => {}
+      }
+    }
+  }
   val playList = new PlayListWidget(musicRecItems)
-  val musicRecTable = playList.tableView()
-
+  val musicRecTable = playList.tableView((i:MusicRecordItem) => playerControls.play(i))
 
   val playerControls = new PlayerControls(musicRecItems) {
     prefHeight = 40
@@ -68,7 +90,10 @@ object Main extends JFXApp {
       override def handle(event:MouseEvent) {
         event.consume()
         val smodel = musicRecTable.selectionModel.value
-        smodel.getSelectedIndices.toList.sortWith((x, y) => x > y).foreach(musicRecItems.remove(_))
+        smodel.getSelectedIndices.toList.sortWith((x, y) => x > y).foreach { x =>
+          musicRecItems.lift(x).foreach(_.markDeleted)
+          musicRecItems.remove(x)
+        }
         smodel.clearSelection()
       }
     }
@@ -87,10 +112,6 @@ object Main extends JFXApp {
       }
     }
   }
-
-//  val playerStub = new Region {
-//    hgrow = Priority.ALWAYS
-//  }
 
   val playerControlsLayout = new HBox {
     hgrow = Priority.ALWAYS

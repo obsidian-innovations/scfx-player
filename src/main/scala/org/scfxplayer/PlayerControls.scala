@@ -20,49 +20,65 @@ import scalafx.collections.ObservableBuffer
 class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
   import scalafx.Includes._
 
-  val timePosSlider = new Slider {
+  private val timePosSlider = new Slider {
     style = "-fx-padding: 0 10 0 10;"
     hgrow = Priority.ALWAYS
   }
 
-  val playBtn:Button = new Button {
-    text = "Play"
+  private val playBtn:Button = new Button {
     prefWidth = 100
-    onMouseClicked = (event:MouseEvent) => {
-      event.consume()
-      playPlaylist(items.headOption, items)
-    }
   }
 
-  def playPlaylist(toPlay:Option[MusicRecordItem], pl:ObservableBuffer[MusicRecordItem]) {
-    (toPlay.headOption orElse pl.headOption).map {  r =>
+  private var stop_ = () => {}
+  private var isPlaying_ = (_:MusicRecordItem) => false
+  private def initState() {
+    stop_ = () => {}
+    isPlaying_ = (_:MusicRecordItem) => false
+    timePosSlider.value onChange {}
+    playBtn.onMouseClicked = onPlayClickedInit()_
+    playBtn.text = "Play"
+  }
+
+  def stop() = { stop_(); initState() }
+  def isPlaying(i:MusicRecordItem) = isPlaying_(i)
+  def play(item:MusicRecordItem) { play(Some(item)) }
+
+  def play(item:Option[MusicRecordItem]) {
+    stop()
+    (item.headOption orElse items.headOption).map {  r =>
       (for {
         file <- Try(new File(r.fullPath))
         media <- Try(new Media(file.toURI.toURL.toExternalForm))
         mplayer <- Try(new MediaPlayer(media))
       } yield {
+        stop_ = () => mplayer.stop()
+        isPlaying_ = (i) => i.fullPath == r.fullPath
         mplayer.onReady = onPlayerReady(mplayer)
-        mplayer.onEndOfMedia = { mplayer.stop(); scheduleNextPlay(r, pl) }
-        mplayer.onError = { mplayer.stop(); scheduleNextPlay(r, pl) }
-        mplayer.onStalled = { mplayer.stop(); scheduleNextPlay(r, pl) }
-      }).getOrElse(scheduleNextPlay(r, pl))
+        mplayer.onEndOfMedia = scheduleNextPlay(r)
+        mplayer.onError = scheduleNextPlay(r)
+        mplayer.onStalled = scheduleNextPlay(r)
+      }).getOrElse(scheduleNextPlay(r))
     }
   }
 
-  def scheduleNextPlay(played:MusicRecordItem, pl:ObservableBuffer[MusicRecordItem]) {
-    val nextToPlay = pl.dropWhile {_.fullPath != played.fullPath}.drop(1).headOption
-    playPlaylist(nextToPlay, pl)
+  private def scheduleNextPlay(played:MusicRecordItem) {
+    play(items.dropWhile {_.fullPath != played.fullPath}.drop(1).headOption)
   }
 
-  def isPlaying(p:MediaPlayer) = p.status.value.toString == MediaPlayer.Status.PLAYING.toString()
+  private def isPlaying(p:MediaPlayer) = p.status.value.toString == MediaPlayer.Status.PLAYING.toString()
 
-  def onPlayClicked(player:MediaPlayer)(event:MouseEvent) = {
+  private def onPlayClickedInit()(event:MouseEvent) = {
+    event.consume()
+    play(items.headOption)
+  }
+
+  private def onPlayClicked(player:MediaPlayer)(event:MouseEvent) = {
     event.consume()
     if(isPlaying(player)) player.pause()
     else player.play()
   }
 
-  def onPlayerReady(mplayer:MediaPlayer) = {
+  private def onPlayerReady(mplayer:MediaPlayer) = {
     mplayer.onPlaying = {playBtn.text = "Pause"}
     mplayer.onPaused = {playBtn.text = "Play"}
     playBtn.onMouseClicked = onPlayClicked(mplayer)_
@@ -82,5 +98,5 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
   }
 
   content = Seq(playBtn, timePosSlider)
-
+  initState()
 }

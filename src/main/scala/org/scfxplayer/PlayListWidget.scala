@@ -9,11 +9,7 @@ import javafx.scene.control.CheckMenuItem
 import javafx.event.EventHandler
 import javafx.scene.{ control => jfxsc }
 
-
-
-
 //http://blog.ngopal.com.np/2012/05/06/javafx-drag-and-drop-cell-in-listview/
-
 
 class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
   import scalafx.Includes._
@@ -23,25 +19,21 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
     column.cellFactory = f => {
       val res:TableCell[MusicRecordItem,String] = oldFactory.call(f)
       res.onDragDropped = (event:DragEvent) => {
-        val db = event.getDragboard();
+        event.consume()
+        val db = event.getDragboard()
         val success = if (event.getDragboard().hasString()) {
-          val text = db.getString();
-          val idx = res.tableRow.value.indexProperty().getValue
-          val movedO = musicRecItems.find(_.fullPath == text)
-          val targetO = Option(musicRecItems.get(idx))
-          movedO.zip(targetO).foreach{ case (moved,target) =>
-            musicRecItems.remove(moved)
-            val items = musicRecItems.toList
-            val before = items.takeWhile(_ != target)
-            val after = items.dropWhile(_ != target)
-            musicRecItems.clear()
-            musicRecItems.addAll((before ::: List(moved) ::: after): _*)
+          val droppedIdx = musicRecItems.indexWhere(_.fullPath == db.getString())
+          val targetIdx = res.tableRow.value.indexProperty().getValue
+          musicRecItems.find(_.fullPath == db.getString() && droppedIdx > -1 && targetIdx > -1).map { x =>
+            val newTrgtIdx:Int = if(targetIdx > droppedIdx) targetIdx + 1 else targetIdx
+            musicRecItems.insert(newTrgtIdx, x)
+            musicRecItems.remove(if(targetIdx > droppedIdx) droppedIdx else droppedIdx + 1)
+            column.getTableView.selectionModel.value.clearSelection()
+            column.getTableView.selectionModel.value.select(targetIdx)
           }
-
-          true;
+          true
         } else false
-        event.setDropCompleted(success);
-        event.consume();
+        event.setDropCompleted(success)
       }
       res
     }
@@ -55,16 +47,12 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
     cellValueFactory = {_.value.duration}
   })
 
-
-
-
   val trackColumn = attachDnDToColumn(new TableColumn[MusicRecordItem, String] {
     text = "Track"
     prefWidth = 300
     minWidth = 50
     cellValueFactory = {_.value.trackNameMade}
   })
-
 
   val albumColumn = attachDnDToColumn(new TableColumn[MusicRecordItem, String]() {
     text = "Album"
@@ -73,14 +61,12 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
     cellValueFactory = {_.value.album}
   })
 
-
   val artistColumn = attachDnDToColumn(new TableColumn[MusicRecordItem, String]() {
     text = "Artist"
     prefWidth = 120
     minWidth = 50
     cellValueFactory = {_.value.artist}
   })
-
 
   val durationMenuItem = new CheckMenuItem("Duration")
   initPlaylistMenuItem(durationMenuItem, durationColumn)
@@ -108,71 +94,54 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
       })
   }
 
-
-
   //https://forums.oracle.com/thread/2413845
-  def setupDragAndDrop(tableView:TableView[MusicRecordItem]):TableView[MusicRecordItem] = {
+  def setupDragAndDrop(tableView:TableView[MusicRecordItem], onItemDblClicked: MusicRecordItem => Unit):TableView[MusicRecordItem] = {
     tableView.onMouseClicked = (event:MouseEvent) => {
-      if(event.getClickCount()==2){ // double click
-        val selected = tableView.getSelectionModel().getSelectedItem();
-        if(selected !=null){
-          System.out.println("select : "+selected)
-        }
-      }
+      if(event.getClickCount() == 2)
+        Option(tableView.getSelectionModel().getSelectedItem()).map(onItemDblClicked(_))
     }
-
 
     tableView.onDragDetected =  (event:MouseEvent) => {
-        // drag was detected, start drag-and-drop gesture
-        val selected = tableView.getSelectionModel().getSelectedItem();
-        if(selected !=null){
-          val db = tableView.startDragAndDrop(TransferMode.LINK)
-          val content = new ClipboardContent();
-          content.putString(selected.fullPath);
-          db.setContent(content);
-          event.consume();
-     }
-  }
-
-
-    tableView.onDragOver =  (event:DragEvent) => {
-        // data is dragged over the target
-        val db = event.getDragboard();
-        if (event.getDragboard().hasString()){
-          event.acceptTransferModes(TransferMode.LINK);
-        }
-        event.consume();
-    }
-
-
-    tableView.onDragDropped = (event:DragEvent) => {
-        val db = event.getDragboard();
-        val success = if (event.getDragboard().hasString()) {
-          println(event.gestureTarget)
-          val text = db.getString();
-          println(text)
-          //musicRecItems.add(text);
-          //tableView.setItems(tableContent);
-          true;
-        } else false
-        event.setDropCompleted(success);
+      // drag was detected, start drag-and-drop gesture
+      val selected = tableView.getSelectionModel().getSelectedItem();
+      if(selected !=null){
+        val db = tableView.startDragAndDrop(TransferMode.LINK)
+        val content = new ClipboardContent();
+        content.putString(selected.fullPath);
+        db.setContent(content);
         event.consume();
       }
+    }
+
+    tableView.onDragOver =  (event:DragEvent) => {
+      val db = event.getDragboard()
+      if (event.getDragboard().hasString()) {
+        event.acceptTransferModes(TransferMode.LINK)
+      }
+      event.consume()
+    }
+
+    tableView.onDragDropped = (event:DragEvent) => {
+      val db = event.getDragboard()
+      val success = if (event.getDragboard().hasString()) {
+        println(event.gestureTarget)
+        val text = db.getString()
+        true;
+      } else false
+      event.setDropCompleted(success)
+      event.consume()
+    }
+
     tableView
   }
 
-
-  def tableView():TableView[MusicRecordItem] = {
+  def tableView(onItemDblClicked: MusicRecordItem => Unit):TableView[MusicRecordItem] = {
     val table = new TableView[MusicRecordItem](musicRecItems) {
       vgrow = Priority.ALWAYS
       hgrow = Priority.ALWAYS
       columns ++= List(durationColumn, trackColumn, albumColumn, artistColumn)
     }
     table.selectionModel.value.setSelectionMode(SelectionMode.MULTIPLE)
-
-
-
-
-    setupDragAndDrop(table)
+    setupDragAndDrop(table, onItemDblClicked)
   }
 }
