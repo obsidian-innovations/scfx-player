@@ -26,21 +26,40 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
   }
 
   private val playBtn:Button = new Button {
-    prefWidth = 100
+    prefWidth = 40
+  }
+
+  private val nextBtn:Button = new Button {
+    prefWidth = 40
+    text = ">"
+    onMouseClicked = (event:MouseEvent) => {
+      event.consume()
+      playing.foreach(scheduleNextPlay(_))
+    }
+  }
+
+  private val prevBtn:Button = new Button {
+    prefWidth = 40
+    text = "<"
+    onMouseClicked = (event:MouseEvent) => {
+      event.consume()
+      playing.foreach(schedulePrevPlay(_))
+    }
   }
 
   private var stop_ = () => {}
-  private var isPlaying_ = (_:MusicRecordItem) => false
+  private var playing_ : () => Option[MusicRecordItem] = () => None
   private def initState() {
     stop_ = () => {}
-    isPlaying_ = (_:MusicRecordItem) => false
+    playing_ = () => None
     timePosSlider.value onChange {}
     playBtn.onMouseClicked = onPlayClickedInit()_
     playBtn.text = "Play"
   }
 
   def stop() = { stop_(); initState() }
-  def isPlaying(i:MusicRecordItem) = isPlaying_(i)
+  def playing = playing_()
+  def isPlaying(i:MusicRecordItem) = playing.map(_.fullPath == i.fullPath).getOrElse(false)
   def play(item:MusicRecordItem) { play(Some(item)) }
 
   def play(item:Option[MusicRecordItem]) {
@@ -52,7 +71,7 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
         mplayer <- Try(new MediaPlayer(media))
       } yield {
         stop_ = () => mplayer.stop()
-        isPlaying_ = (i) => i.fullPath == r.fullPath
+        playing_ = () => Some(r)
         mplayer.onReady = onPlayerReady(mplayer)
         mplayer.onEndOfMedia = scheduleNextPlay(r)
         mplayer.onError = scheduleNextPlay(r)
@@ -63,6 +82,10 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
 
   private def scheduleNextPlay(played:MusicRecordItem) {
     play(items.dropWhile {_.fullPath != played.fullPath}.drop(1).headOption)
+  }
+
+  private def schedulePrevPlay(played:MusicRecordItem) {
+    play(items.reverse.dropWhile {_.fullPath != played.fullPath}.drop(1).headOption)
   }
 
   private def isPlaying(p:MediaPlayer) = p.status.value.toString == MediaPlayer.Status.PLAYING.toString()
@@ -97,6 +120,6 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     mplayer.play()
   }
 
-  content = Seq(playBtn, timePosSlider)
+  content = Seq(prevBtn, playBtn, nextBtn, timePosSlider)
   initState()
 }
