@@ -4,7 +4,7 @@ import java.io.File
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.Scene
-import scalafx.scene.layout.{VBox, Priority, HBox}
+import scalafx.scene.layout.{Pane, VBox, Priority, HBox}
 import javafx.event.EventHandler
 import javafx.stage.WindowEvent
 import scalafx.scene.control.{Slider, Button}
@@ -16,6 +16,7 @@ import scala.util.Try
 import scalafx.event
 import scala.annotation.tailrec
 import scalafx.collections.ObservableBuffer
+import scalafx.scene.text.Text
 
 class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
   import scalafx.Includes._
@@ -23,7 +24,30 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
   private val timePosSlider = new Slider {
     style = "-fx-padding: 0 10 0 10;"
     hgrow = Priority.ALWAYS
+    vgrow = Priority.ALWAYS
   }
+
+  private val volumeSlider:Slider = new Slider {
+    hgrow = Priority.NEVER
+    vgrow = Priority.ALWAYS
+    maxWidth = 80
+    minWidth = 80
+    prefWidth = 80
+    min = 0.0
+    max = 1.0
+    opacity = 0.75
+    value = 0.75
+    value onChange {
+      (s, oldVal, newVal) => {
+        volumeSlider.opacity = newVal.doubleValue.max(0.3)
+        player_().foreach { p =>
+          p.volume = newVal.doubleValue
+        }
+      }
+    }
+  }
+
+  private val playingNowText = new Text {}
 
   private val playBtn:Button = new Button {
     prefWidth = 40
@@ -47,35 +71,65 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     }
   }
 
-  private var stop_ = () => {}
+  private val timePosLayout = new HBox {
+    hgrow = Priority.ALWAYS
+    vgrow = Priority.ALWAYS
+    alignment = Pos.CENTER
+    content = Seq(timePosSlider)
+  }
+
+  private val playingTextLayout = new HBox {
+    hgrow = Priority.ALWAYS
+    content = Seq(playingNowText)
+  }
+
+  private val textNvolumeLayout = new HBox {
+    hgrow = Priority.ALWAYS
+    vgrow = Priority.ALWAYS
+    alignment = Pos.CENTER
+    content = Seq(playingTextLayout, volumeSlider)
+  }
+
+  private val volNposNtextLayout = new VBox {
+    hgrow = Priority.ALWAYS
+    vgrow = Priority.ALWAYS
+    content = Seq(timePosLayout, textNvolumeLayout)
+  }
+
+  content = Seq(prevBtn, playBtn, nextBtn, volNposNtextLayout)
+
+  private var player_ : () => Option[MediaPlayer] = () => None
   private var playing_ : () => Option[MusicRecordItem] = () => None
   private def initState() {
-    stop_ = () => {}
+    player_().foreach(_.stop())
+    player_ = () => None
     playing_ = () => None
     timePosSlider.value onChange {}
     playBtn.onMouseClicked = onPlayClickedInit()_
     playBtn.text = "Play"
+    playingNowText.text = ""
   }
 
-  def stop() = { stop_(); initState() }
+  def stop() = initState()
   def playing = playing_()
   def isPlaying(i:MusicRecordItem) = playing.map(_.fullPath == i.fullPath).getOrElse(false)
   def play(item:MusicRecordItem) { play(Some(item)) }
 
   def play(item:Option[MusicRecordItem]) {
-    stop()
+    initState()
     (item.headOption orElse items.headOption).map {  r =>
       (for {
         file <- Try(new File(r.fullPath))
         media <- Try(new Media(file.toURI.toURL.toExternalForm))
         mplayer <- Try(new MediaPlayer(media))
       } yield {
-        stop_ = () => mplayer.stop()
+        player_ = () => Some(mplayer)
         playing_ = () => Some(r)
         mplayer.onReady = onPlayerReady(mplayer)
         mplayer.onEndOfMedia = scheduleNextPlay(r)
         mplayer.onError = scheduleNextPlay(r)
         mplayer.onStalled = scheduleNextPlay(r)
+        playingNowText.text = r.trackNameMade.value
       }).getOrElse(scheduleNextPlay(r))
     }
   }
@@ -102,6 +156,7 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
   }
 
   private def onPlayerReady(mplayer:MediaPlayer) = {
+    mplayer.volume = volumeSlider.value.value
     mplayer.onPlaying = {playBtn.text = "Pause"}
     mplayer.onPaused = {playBtn.text = "Play"}
     playBtn.onMouseClicked = onPlayClicked(mplayer)_
@@ -120,6 +175,5 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     mplayer.play()
   }
 
-  content = Seq(prevBtn, playBtn, nextBtn, timePosSlider)
   initState()
 }
