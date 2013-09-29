@@ -59,18 +59,13 @@ object PlayListManager {
   val playerHomeName = ".scfx-player"
   val defaultPlaylistName = "scfx-def-playlist.json"
 
-
   def defaultLocation(fileHandling:FileHandling = JvmFileHandling):Try[String] = Try {
     val homeFolderPath = fileHandling.homeFolder
     val homeFolder = new java.io.File(homeFolderPath)
     val fileSep = fileHandling.fileSep
-
-
     val playerHomePath = homeFolder + fileSep + playerHomeName
     val playerHome = new java.io.File(playerHomePath)
-
     if(!playerHome.exists) playerHome.mkdir()
-
     playerHome.getAbsolutePath + fileSep + defaultPlaylistName
   }
 
