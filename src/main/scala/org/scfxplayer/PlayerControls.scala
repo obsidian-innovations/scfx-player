@@ -1,22 +1,18 @@
 package org.scfxplayer
 
 import java.io.File
-import scalafx.application.JFXApp
-import scalafx.application.JFXApp.PrimaryStage
-import scalafx.scene.Scene
-import scalafx.scene.layout.{Pane, VBox, Priority, HBox}
-import javafx.event.EventHandler
-import javafx.stage.WindowEvent
+import scalafx.scene.layout.{VBox, Priority, HBox}
 import scalafx.scene.control.{Slider, Button}
-import scalafx.scene.media.{Media, MediaPlayer, MediaView, MediaErrorEvent}
+import scalafx.scene.media.{Media, MediaPlayer}
 import scalafx.scene.input.MouseEvent
 import scalafx.util.Duration
 import scalafx.geometry.Pos
 import scala.util.Try
-import scalafx.event
-import scala.annotation.tailrec
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.text.Text
+import scalafx.animation._
+import scala.Some
+import scalafx.scene.shape.Rectangle
 
 class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
   import scalafx.Includes._
@@ -47,7 +43,13 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     }
   }
 
-  private val playingNowText = new Text {}
+  private val playingNowText:Text = new Text {
+    layoutBounds onChange {
+      (t, oldVal, newVal) => {
+        updateScroller(-1.0 * newVal.getWidth, scroller.fromX.value, scroller.duration.value)
+      }
+    }
+  }
 
   private val playBtn:Button = new Button {
     prefWidth = 40
@@ -78,9 +80,16 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     content = Seq(timePosSlider)
   }
 
-  private val playingTextLayout = new HBox {
+  private val playingTextLayout:HBox = new HBox {
     hgrow = Priority.ALWAYS
     content = Seq(playingNowText)
+    width onChange {
+      (s, oldVal, newVal) => {
+        playingTextLayout.clip = new Rectangle {width = newVal.doubleValue; height = playingTextLayout.height.value}
+        val playFrom = Try(scroller.currentTime.value.toMillis * newVal.doubleValue / oldVal.doubleValue).getOrElse(0.0)
+        updateScroller(scroller.toX.value, newVal.doubleValue, Duration(if(playFrom.isNaN) 0.0 else playFrom))
+      }
+    }
   }
 
   private val textNvolumeLayout = new HBox {
@@ -96,6 +105,24 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     content = Seq(timePosLayout, textNvolumeLayout)
   }
 
+  private lazy val scroller = new TranslateTransition {
+    cycleCount = Timeline.INDEFINITE
+    autoReverse = false
+    interpolator = Interpolator.LINEAR
+    fromX = 0.0
+    toX = 0.0
+    duration = Duration(0.0)
+    node = playingNowText
+  }
+
+  private def updateScroller(moveto:Double, movefrom:Double, playfrom:Duration) {
+    scroller.stop()
+    scroller.fromX = movefrom
+    scroller.toX = moveto
+    scroller.duration = Duration(30.0 * movefrom.abs)
+    scroller.playFrom(playfrom)
+  }
+
   content = Seq(prevBtn, playBtn, nextBtn, volNposNtextLayout)
 
   private var player_ : () => Option[MediaPlayer] = () => None
@@ -107,6 +134,7 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     timePosSlider.value onChange {}
     playBtn.onMouseClicked = onPlayClickedInit()_
     playBtn.text = "Play"
+    scroller.stop()
     playingNowText.text = ""
   }
 
@@ -130,6 +158,7 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
         mplayer.onError = scheduleNextPlay(r)
         mplayer.onStalled = scheduleNextPlay(r)
         playingNowText.text = r.trackNameMade.value
+        scroller.playFromStart()
       }).getOrElse(scheduleNextPlay(r))
     }
   }
@@ -164,8 +193,11 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     timePosSlider.max = mplayer.media.duration.value.toSeconds
     timePosSlider.value = 0.0
     timePosSlider.value onChange {
-      if(!timePosSlider.valueChanging.value || !isPlaying(mplayer))
+      if(!timePosSlider.valueChanging.value || !isPlaying(mplayer)) {
+        mplayer.volume = 0.0
         mplayer.seek(Duration(timePosSlider.value.value * 1000.0))
+        mplayer.volume = volumeSlider.value.value
+      }
     }
     mplayer.currentTime onChange {
       timePosSlider.valueChanging = true

@@ -140,6 +140,7 @@ object Main extends JFXApp {
       height onChange {mainLayout.setPrefHeight(scene.value.getHeight);}
       content = mainLayout
       onCloseRequest = (event:WindowEvent) => {
+        playerControls.stop()
         val pl = PlayList(musicRecItems.map(_.fullPath).toList)
         PlayListManager.saveToDefault(pl)
       }
