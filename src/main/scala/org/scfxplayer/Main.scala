@@ -57,18 +57,19 @@ object Main extends JFXApp {
   val musicRecTable = playList.tableView((i:MusicRecordItem) => playerControls.play(i))
 
   val playerControls = new PlayerControls(musicRecItems) {
-    prefHeight = 40
-    minHeight = 40
-    maxHeight = 40
     alignment = Pos.CENTER
+    minWidth = 200
+    maxWidth = 500
     hgrow = Priority.ALWAYS
     vgrow = Priority.ALWAYS
   }
 
   val playlistSettingsBtn:Button = new Button {
-    text = "..."
-    prefHeight = 40
-    prefWidth = 40
+    styleClass ++= List("player-button", "button-settings")
+    maxWidth = 24
+    minWidth = 24
+    maxHeight = 24
+    minHeight = 24
     onMouseClicked = new EventHandler[MouseEvent] {
       override def handle(event:MouseEvent) {
         event.consume()
@@ -82,10 +83,11 @@ object Main extends JFXApp {
   }
 
   val deleteFilesBtn = new Button {
-    text = "Delete"
-    prefHeight = 40 // vgrow policy didn't work, set it directly for now
-    vgrow = Priority.ALWAYS // Doesn't work?!?
-    hgrow = Priority.ALWAYS
+    styleClass ++= List("player-button", "button-delete")
+    maxWidth = 24
+    minWidth = 24
+    maxHeight = 24
+    minHeight = 24
     onMouseClicked = new EventHandler[MouseEvent] {
       override def handle(event:MouseEvent) {
         event.consume()
@@ -100,9 +102,11 @@ object Main extends JFXApp {
   }
 
   val openFilesBtn = new Button {
-    text = "Open"
-    vgrow = Priority.ALWAYS // Doesn't work?!?
-    prefHeight = 40 // vgrow policy didn't work, set it directly for now
+    styleClass ++= List("player-button", "button-eject")
+    maxWidth = 24
+    minWidth = 24
+    maxHeight = 24
+    minHeight = 24
     onMouseClicked = new EventHandler[MouseEvent] {
       override def handle(event:MouseEvent) {
         event.consume()
@@ -114,13 +118,14 @@ object Main extends JFXApp {
   }
 
   val playerControlsLayout = new HBox {
+    val lspacer = new Region {hgrow = Priority.ALWAYS}
+    val rspacer = new Region {hgrow = Priority.ALWAYS}
     hgrow = Priority.ALWAYS
-    alignment = Pos.CENTER_LEFT
-    minHeight = 40
-    maxHeight = 40
-    prefHeight = 40
-    fillHeight = true // Doesn't work?!?
-    content ++= List(openFilesBtn, deleteFilesBtn, playerControls, playlistSettingsBtn)
+    alignment = Pos.BOTTOM_CENTER
+    minHeight = 70
+    maxHeight = 70
+//    fillHeight = true // Doesn't work?!?
+    content ++= List(openFilesBtn, lspacer, playerControls, rspacer, playlistSettingsBtn, deleteFilesBtn)
   }
 
   val mainLayout = new VBox {

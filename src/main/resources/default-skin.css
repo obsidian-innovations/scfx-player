@@ -32,3 +32,17 @@
 .button-play-paused {
     -fx-background-image: url("actions-media-playback-pause-icon-32.png");
 }
+
+.button-eject {
+    -fx-background-image: url("actions-media-eject-icon-24.png");
+}
+
+.button-delete {
+    -fx-background-image: url("actions-edit-delete-icon-24.png");
+    -fx-background-color: transparent;
+}
+
+.button-settings {
+    -fx-background-image: url("categories-applications-system-icon-24.png");
+    -fx-background-color: transparent;
+}

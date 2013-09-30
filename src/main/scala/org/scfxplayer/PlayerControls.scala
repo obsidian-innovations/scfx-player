@@ -15,11 +15,11 @@ import scala.Some
 import scalafx.scene.shape.Rectangle
 //import scalafx.scene.image.{ImageView, Image}
 
-class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
+class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
   import scalafx.Includes._
 
   private val timePosSlider = new Slider {
-    style = "-fx-padding: 0 10 0 10;"
+//    style = "-fx-padding: 0 10 0 10;"
     hgrow = Priority.ALWAYS
     vgrow = Priority.ALWAYS
   }
@@ -106,18 +106,18 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     }
   }
 
-  private val textNvolumeLayout = new HBox {
-    hgrow = Priority.ALWAYS
-    vgrow = Priority.ALWAYS
-    alignment = Pos.CENTER
-    content = Seq(playingTextLayout, volumeSlider)
-  }
+//  private val textNvolumeLayout = new HBox {
+//    hgrow = Priority.ALWAYS
+//    vgrow = Priority.ALWAYS
+//    alignment = Pos.CENTER
+//    content = Seq(playingTextLayout)
+//  }
 
-  private val volNposNtextLayout = new VBox {
-    hgrow = Priority.ALWAYS
-    vgrow = Priority.ALWAYS
-    content = Seq(timePosLayout, textNvolumeLayout)
-  }
+//  private val volNposNtextLayout = new VBox {
+//    hgrow = Priority.ALWAYS
+//    vgrow = Priority.ALWAYS
+//    content = Seq(textNvolumeLayout)
+//  }
 
   private lazy val scroller = new TranslateTransition {
     cycleCount = Timeline.INDEFINITE
@@ -137,7 +137,12 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     scroller.playFrom(playfrom)
   }
 
-  content = Seq(prevBtn, playBtn, nextBtn, volNposNtextLayout)
+  private val btnsLayout = new HBox {
+    alignment = Pos.CENTER
+    content = Seq(prevBtn, playBtn, nextBtn, volumeSlider)
+  }
+
+  content = Seq(playingTextLayout, timePosLayout, btnsLayout)
 
   private var player_ : () => Option[MediaPlayer] = () => None
   private var playing_ : () => Option[MusicRecordItem] = () => None
