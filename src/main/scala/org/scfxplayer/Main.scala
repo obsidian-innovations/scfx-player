@@ -112,7 +112,6 @@ object Main extends JFXApp {
     val rspacer = new Region {hgrow = Priority.SOMETIMES}
     hgrow = Priority.ALWAYS
     vgrow = Priority.ALWAYS
-    spacing = 5
     content = Seq(lspacer, playerControls, rspacer)
   }
 
@@ -122,10 +121,12 @@ object Main extends JFXApp {
     hgrow = Priority.ALWAYS
     vgrow = Priority.ALWAYS
     alignment = Pos.BOTTOM_CENTER
+    spacing = 6
     content = Seq(openFilesBtn, spacer, playlistSettingsBtn, deleteFilesBtn)
   }
 
   val mainControlsLayout = new StackPane {
+    styleClass ++= Seq("player-controls-bg")
     hgrow = Priority.ALWAYS
 //    vgrow = Priority.ALWAYS
     minHeight = 90

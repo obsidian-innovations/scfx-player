@@ -1,36 +1,51 @@
 
+.player-controls-bg {
+    -fx-background-image: url("player-controls-bg.png");
+    -fx-background-repeat: repeat-x;
+    -fx-background-size: auto stretch;
+}
+
 .player-button {
-    -fx-background-radius: 15;
+    -fx-border-radius: 4;
+    -fx-border-color: transparent;
+    -fx-background-size: 24;
+    /*-fx-background-radius: 15;*/
     -fx-effect: null;
+    -fx-background-color: transparent;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
 }
 
 .player-button:focused {
     /*-fx-background-insets: 0, 0, 1, 2;*/
-    -fx-background-color: transparent;
+    /*-fx-background-color: transparent;*/
 }
 
 .player-button:hover {
     -fx-effect: dropshadow(gaussian, lightslategray, 2, 0.2, 0, 0);
+    /*-fx-border-color: whitesmoke;*/
 }
 
 .player-button:pressed {
-    -fx-effect: innershadow(gaussian, lightslategray, 15, 0.1, 0, 0);
+    /*-fx-effect: innershadow(gaussian, lightslategray, 1, 0.1, 0, 0);*/
+    -fx-effect: null;
+    /*-fx-border-color: whitesmoke;*/
 }
 
 .button-forward {
-    -fx-background-image: url("actions-media-skip-forward-icon-32.png");
+    -fx-background-image: url("icon-forward-32.png");
 }
 
 .button-backward {
-    -fx-background-image: url("actions-media-skip-backward-icon-32.png");
+    -fx-background-image: url("icon-backward-32.png");
 }
 
 .button-play {
-    -fx-background-image: url("actions-media-playback-start-icon-32.png");
+    -fx-background-image: url("icon-play-32.png");
 }
 
 .button-play-paused {
-    -fx-background-image: url("actions-media-playback-pause-icon-32.png");
+    -fx-background-image: url("icon-pause-32.png");
 }
 
 .button-eject {
@@ -38,19 +53,24 @@
     /*-fx-padding: 0 0 5 5;*/
     -fx-translate-x: 8;
     -fx-translate-y: -8;
-    -fx-background-image: url("actions-media-eject-icon-24.png");
+    -fx-background-image: url("icon-eject-24.png");
+    -fx-background-size: 14;
 }
 
 .button-delete {
     -fx-translate-x: -8;
     -fx-translate-y: -8;
-    -fx-background-image: url("actions-edit-delete-icon-24.png");
-    -fx-background-color: transparent;
+    -fx-background-image: url("icon-delete-24.png");
+    -fx-background-size: 14;
 }
 
 .button-settings {
     -fx-translate-x: -8;
     -fx-translate-y: -8;
-    -fx-background-image: url("categories-applications-system-icon-24.png");
-    -fx-background-color: transparent;
+    -fx-background-image: url("icon-options-24.png");
+    -fx-background-size: 14;
+}
+
+.button-delete button-settings eject-eject:hover {
+    -fx-border-color: whitesmoke;
 }

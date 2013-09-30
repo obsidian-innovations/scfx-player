@@ -134,7 +134,7 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
   private val btnsLayout = new HBox {
     style = "-fx-padding: 5 0 5 0;"
     alignment = Pos.CENTER
-    spacing = 8
+    spacing = 15
     content = Seq(prevBtn, playBtn, nextBtn, volumeSlider)
   }
 
