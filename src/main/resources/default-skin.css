@@ -34,15 +34,23 @@
 }
 
 .button-eject {
+    /* no padding, insets, borders work?!? */
+    /*-fx-padding: 0 0 5 5;*/
+    -fx-translate-x: 8;
+    -fx-translate-y: -8;
     -fx-background-image: url("actions-media-eject-icon-24.png");
 }
 
 .button-delete {
+    -fx-translate-x: -8;
+    -fx-translate-y: -8;
     -fx-background-image: url("actions-edit-delete-icon-24.png");
     -fx-background-color: transparent;
 }
 
 .button-settings {
+    -fx-translate-x: -8;
+    -fx-translate-y: -8;
     -fx-background-image: url("categories-applications-system-icon-24.png");
     -fx-background-color: transparent;
 }

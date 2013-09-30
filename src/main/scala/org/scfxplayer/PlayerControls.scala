@@ -25,11 +25,11 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
   }
 
   private val volumeSlider:Slider = new Slider {
+    style = "-fx-padding: 0 0 0 10;"
     hgrow = Priority.NEVER
     vgrow = Priority.ALWAYS
-    maxWidth = 80
-    minWidth = 80
-    prefWidth = 80
+    maxWidth = 90
+    minWidth = 90
     min = 0.0
     max = 1.0
     opacity = 0.75
@@ -89,12 +89,14 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
 
   private val timePosLayout = new HBox {
     hgrow = Priority.ALWAYS
-    vgrow = Priority.ALWAYS
-    alignment = Pos.CENTER
+    vgrow = Priority.NEVER
+    alignment = Pos.BOTTOM_CENTER
     content = Seq(timePosSlider)
   }
 
-  private val playingTextLayout:HBox = new HBox {
+  private lazy val playingTextLayout:HBox = new HBox {
+    alignment = Pos.CENTER_LEFT
+    vgrow = Priority.ALWAYS
     hgrow = Priority.ALWAYS
     content = Seq(playingNowText)
     width onChange {
@@ -104,20 +106,12 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
         updateScroller(scroller.toX.value, newVal.doubleValue, Duration(if(playFrom.isNaN) 0.0 else playFrom))
       }
     }
+    height onChange {
+      (s, oldv, newv) => {
+        playingTextLayout.clip = new Rectangle {width = playingTextLayout.width.value; height = newv.doubleValue}
+      }
+    }
   }
-
-//  private val textNvolumeLayout = new HBox {
-//    hgrow = Priority.ALWAYS
-//    vgrow = Priority.ALWAYS
-//    alignment = Pos.CENTER
-//    content = Seq(playingTextLayout)
-//  }
-
-//  private val volNposNtextLayout = new VBox {
-//    hgrow = Priority.ALWAYS
-//    vgrow = Priority.ALWAYS
-//    content = Seq(textNvolumeLayout)
-//  }
 
   private lazy val scroller = new TranslateTransition {
     cycleCount = Timeline.INDEFINITE
@@ -138,7 +132,9 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
   }
 
   private val btnsLayout = new HBox {
+    style = "-fx-padding: 5 0 5 0;"
     alignment = Pos.CENTER
+    spacing = 8
     content = Seq(prevBtn, playBtn, nextBtn, volumeSlider)
   }
 
