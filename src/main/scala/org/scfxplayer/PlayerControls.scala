@@ -13,9 +13,7 @@ import scalafx.scene.text.Text
 import scalafx.animation._
 import scala.Some
 import scalafx.scene.shape.Rectangle
-import scalafx.scene.image.{ImageView, Image}
-
-import scala.io.Source
+//import scalafx.scene.image.{ImageView, Image}
 
 class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
   import scalafx.Includes._
@@ -55,7 +53,11 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
   }
 
   private val playBtn:Button = new Button {
-    prefWidth = 40
+    styleClass ++= List("player-button", "button-play")
+    maxWidth = 32
+    minWidth = 32
+    maxHeight = 32
+    minHeight = 32
   }
 
   private val nextBtn:Button = new Button {
@@ -79,9 +81,6 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     minWidth = 32
     maxHeight = 32
     minHeight = 32
-//    graphic = new ImageView {
-//      image = new Image(getClass.getResource("/actions-media-skip-backward-icon-32.png").toExternalForm)
-//    }
     onMouseClicked = (event:MouseEvent) => {
       event.consume()
       playing.foreach(schedulePrevPlay(_))
@@ -209,9 +208,9 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     timePosSlider.value = 0.0
     timePosSlider.value onChange {
       if(!timePosSlider.valueChanging.value || !isPlaying(mplayer)) {
-        mplayer.volume = 0.0
-        mplayer.seek(Duration(timePosSlider.value.value * 1000.0))
-        mplayer.volume = volumeSlider.value.value
+        mplayer.mute = true
+        Try(mplayer.seek(Duration(timePosSlider.value.value * 1000.0)))
+        mplayer.mute = false
       }
     }
     mplayer.currentTime onChange {
