@@ -147,7 +147,7 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     playing_ = () => None
     timePosSlider.value onChange {}
     playBtn.onMouseClicked = onPlayClickedInit()_
-    playBtn.text = "Play"
+    playBtn.styleClass -= "button-play-paused"
     scroller.stop()
     playingNowText.text = ""
   }
@@ -200,8 +200,8 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
 
   private def onPlayerReady(mplayer:MediaPlayer) = {
     mplayer.volume = volumeSlider.value.value
-    mplayer.onPlaying = {playBtn.text = "Pause"}
-    mplayer.onPaused = {playBtn.text = "Play"}
+    mplayer.onPlaying = {playBtn.styleClass += "button-play-paused"; ()}
+    mplayer.onPaused = {playBtn.styleClass -= "button-play-paused"; ()}
     playBtn.onMouseClicked = onPlayClicked(mplayer)_
     timePosSlider.min = 0.0
     timePosSlider.max = mplayer.media.duration.value.toSeconds

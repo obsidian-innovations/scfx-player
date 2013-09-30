@@ -17,7 +17,6 @@
     -fx-effect: innershadow(gaussian, lightslategray, 15, 0.1, 0, 0);
 }
 
-
 .button-forward {
     -fx-background-image: url("actions-media-skip-forward-icon-32.png");
 }
@@ -28,4 +27,8 @@
 
 .button-play {
     -fx-background-image: url("actions-media-playback-start-icon-32.png");
+}
+
+.button-play-paused {
+    -fx-background-image: url("actions-media-playback-pause-icon-32.png");
 }
