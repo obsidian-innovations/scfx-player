@@ -136,6 +136,7 @@ object Main extends JFXApp {
     width = 640
     height = 480
     scene = new Scene {
+      stylesheets ++= List("default-skin.css")
       width onChange {mainLayout.setPrefWidth(scene.value.getWidth);}
       height onChange {mainLayout.setPrefHeight(scene.value.getHeight);}
       content = mainLayout

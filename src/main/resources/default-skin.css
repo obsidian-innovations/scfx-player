@@ -1,0 +1,16 @@
+
+.player-button {
+    -fx-background-radius: 15;
+}
+
+.player-button:hover {
+    -fx-border-color: red;
+}
+
+.button-forward {
+    -fx-background-image: url("actions-media-skip-forward-icon-32.png");
+}
+
+.button-backward {
+    -fx-background-image: url("actions-media-skip-backward-icon-32.png");
+}

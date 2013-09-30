@@ -13,6 +13,9 @@ import scalafx.scene.text.Text
 import scalafx.animation._
 import scala.Some
 import scalafx.scene.shape.Rectangle
+import scalafx.scene.image.{ImageView, Image}
+
+import scala.io.Source
 
 class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
   import scalafx.Includes._
@@ -56,8 +59,14 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
   }
 
   private val nextBtn:Button = new Button {
-    prefWidth = 40
-    text = ">"
+    styleClass ++= List("player-button", "button-forward")
+    maxWidth = 32
+    minWidth = 32
+    maxHeight = 32
+    minHeight = 32
+//    graphic = new ImageView {
+//      image = new Image(getClass.getResource("/actions-media-skip-forward-icon-32.png").toExternalForm)
+//    }
     onMouseClicked = (event:MouseEvent) => {
       event.consume()
       playing.foreach(scheduleNextPlay(_))
@@ -65,8 +74,14 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
   }
 
   private val prevBtn:Button = new Button {
-    prefWidth = 40
-    text = "<"
+    styleClass ++= List("player-button", "button-backward")
+    maxWidth = 32
+    minWidth = 32
+    maxHeight = 32
+    minHeight = 32
+//    graphic = new ImageView {
+//      image = new Image(getClass.getResource("/actions-media-skip-backward-icon-32.png").toExternalForm)
+//    }
     onMouseClicked = (event:MouseEvent) => {
       event.consume()
       playing.foreach(schedulePrevPlay(_))
