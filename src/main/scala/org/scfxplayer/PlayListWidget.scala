@@ -103,7 +103,11 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
 
     tableView.onDragDetected =  (event:MouseEvent) => {
       // drag was detected, start drag-and-drop gesture
-      event.consume();
+      // we don't consume the event to allow column drag and drop to work
+      // event.consume(); 
+      // val textCursor = scalafx.scene.Cursor.TEXT
+      // textCursor.setText("aaa")
+      // tableView.setCursor(textCursor)
       val selected = tableView.getSelectionModel().getSelectedItem();
       if(selected !=null){
         val db = tableView.startDragAndDrop(TransferMode.LINK)
