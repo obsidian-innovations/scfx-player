@@ -103,25 +103,26 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
 
     tableView.onDragDetected =  (event:MouseEvent) => {
       // drag was detected, start drag-and-drop gesture
+      event.consume();
       val selected = tableView.getSelectionModel().getSelectedItem();
       if(selected !=null){
         val db = tableView.startDragAndDrop(TransferMode.LINK)
         val content = new ClipboardContent();
         content.putString(selected.fullPath);
         db.setContent(content);
-        event.consume();
       }
     }
 
     tableView.onDragOver =  (event:DragEvent) => {
+      event.consume()
       val db = event.getDragboard()
       if (event.getDragboard().hasString()) {
         event.acceptTransferModes(TransferMode.LINK)
       }
-      event.consume()
     }
 
     tableView.onDragDropped = (event:DragEvent) => {
+      event.consume()
       val db = event.getDragboard()
       val success = if (event.getDragboard().hasString()) {
         println(event.gestureTarget)
@@ -129,7 +130,6 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
         true;
       } else false
       event.setDropCompleted(success)
-      event.consume()
     }
 
     tableView
@@ -143,5 +143,6 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
     }
     table.selectionModel.value.setSelectionMode(SelectionMode.MULTIPLE)
     setupDragAndDrop(table, onItemDblClicked)
+    table
   }
 }
