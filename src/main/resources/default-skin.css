@@ -20,6 +20,16 @@
     -fx-focus-color: green;
 }*/
 
+.time-left-text-indicator {
+    -fx-font-size: 10;
+    -fx-fill: dimgray;
+}
+
+.playing-now-indicator {
+    -fx-font-size: 16;
+    -fx-fill: lightslategray;
+}
+
 .player-controls-bg {
     -fx-background-image: url("player-controls-bg.png");
     -fx-background-repeat: repeat-x;

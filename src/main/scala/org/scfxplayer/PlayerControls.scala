@@ -19,13 +19,11 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
   import scalafx.Includes._
 
   private val timePosSlider = new Slider {
-//    style = "-fx-padding: 0 10 0 10;"
     hgrow = Priority.ALWAYS
     vgrow = Priority.ALWAYS
   }
 
   private val volumeSlider:Slider = new Slider {
-//    styleClass ++= Seq("blue-focus-off")
     style = "-fx-padding: 0 0 0 10;"
     hgrow = Priority.NEVER
     vgrow = Priority.ALWAYS
@@ -46,6 +44,7 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
   }
 
   private val playingNowText:Text = new Text {
+    styleClass ++= Seq("playing-now-indicator")
     layoutBounds onChange {
       (t, oldVal, newVal) => {
         updateScroller(-1.0 * newVal.getWidth, scroller.fromX.value, scroller.duration.value)
@@ -88,11 +87,20 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
     }
   }
 
-  private val timePosLayout = new HBox {
+  private val timeMark = new Text {
+
+    styleClass ++= Seq("time-left-text-indicator")
+    managed = false
+    translateY = 23
+    layoutBounds onChange updateTimeLeftIdk
+  }
+
+  private val timePosLayout:VBox = new VBox {
     hgrow = Priority.ALWAYS
     vgrow = Priority.NEVER
     alignment = Pos.BOTTOM_CENTER
-    content = Seq(timePosSlider)
+    content = Seq(timePosSlider, timeMark)
+    width onChange updateTimeLeftIdk
   }
 
   private lazy val playingTextLayout:HBox = new HBox {
@@ -124,6 +132,10 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
     node = playingNowText
   }
 
+  private def updateTimeLeftIdk {
+    timeMark.translateX = timePosLayout.width.value - timeMark.layoutBounds.value.getWidth - 5
+  }
+
   private def updateScroller(moveto:Double, movefrom:Double, playfrom:Duration) {
     scroller.stop()
     scroller.fromX = movefrom
@@ -152,6 +164,7 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
     playBtn.styleClass -= "button-play-paused"
     scroller.stop()
     playingNowText.text = ""
+    timeMark.text = ""
   }
 
   def stop() = initState()
@@ -200,6 +213,13 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
     else player.play()
   }
 
+  private def updateTimeLeftIndicator() {
+    player_().foreach { p =>
+      val timeleft = (p.totalDuration.value - p.currentTime.value).toMillis.toLong
+      timeMark.text = "-" + PlayerUtils.millisToString(timeleft)
+    }
+  }
+
   private def onPlayerReady(mplayer:MediaPlayer) = {
     mplayer.volume = volumeSlider.value.value
     mplayer.onPlaying = {playBtn.styleClass += "button-play-paused"; ()}
@@ -211,13 +231,17 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
     timePosSlider.value onChange {
       if(!timePosSlider.valueChanging.value || !isPlaying(mplayer)) {
         mplayer.mute = true
-        Try(mplayer.seek(Duration(timePosSlider.value.value * 1000.0)))
+        Try(mplayer.seek(Duration(timePosSlider.value.value * 1000.0))).foreach { _ =>
+          updateTimeLeftIndicator()
+        }
         mplayer.mute = false
       }
     }
     mplayer.currentTime onChange {
       timePosSlider.valueChanging = true
-      Try(timePosSlider.value = mplayer.currentTime.value.toSeconds)
+      Try(timePosSlider.value = mplayer.currentTime.value.toSeconds).foreach { _ =>
+        updateTimeLeftIndicator()
+      }
       timePosSlider.valueChanging = false
     }
     mplayer.play()
