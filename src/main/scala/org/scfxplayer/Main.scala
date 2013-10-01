@@ -134,6 +134,7 @@ object Main extends JFXApp {
   }
 
   val mainLayout = new VBox {
+    styleClass ++= Seq("root")
     vgrow = Priority.ALWAYS
     hgrow = Priority.ALWAYS
     content = Seq(mainControlsLayout, musicRecTable)
