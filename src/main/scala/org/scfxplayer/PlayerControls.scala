@@ -25,6 +25,7 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
   }
 
   private val volumeSlider:Slider = new Slider {
+//    styleClass ++= Seq("blue-focus-off")
     style = "-fx-padding: 0 0 0 10;"
     hgrow = Priority.NEVER
     vgrow = Priority.ALWAYS

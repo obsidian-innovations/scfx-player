@@ -1,4 +1,9 @@
 
+.blue-focus-off:focused {
+    -fx-background-insets: 0, 0, 1, 2;
+    /*-fx-background-color: transparent;*/
+}
+
 .player-controls-bg {
     -fx-background-image: url("player-controls-bg.png");
     -fx-background-repeat: repeat-x;
@@ -22,14 +27,11 @@
 }
 
 .player-button:hover {
-    -fx-effect: dropshadow(gaussian, lightslategray, 2, 0.2, 0, 0);
-    /*-fx-border-color: whitesmoke;*/
+    -fx-effect: innershadow(gaussian, whitesmoke, 5, 0.2, 0, 0);
 }
 
 .player-button:pressed {
-    /*-fx-effect: innershadow(gaussian, lightslategray, 1, 0.1, 0, 0);*/
-    -fx-effect: null;
-    /*-fx-border-color: whitesmoke;*/
+    -fx-effect: innershadow(gaussian, whitesmoke, 5, 0.7, 0, 0);
 }
 
 .button-forward {
@@ -49,28 +51,16 @@
 }
 
 .button-eject {
-    /* no padding, insets, borders work?!? */
-    /*-fx-padding: 0 0 5 5;*/
-    -fx-translate-x: 8;
-    -fx-translate-y: -8;
     -fx-background-image: url("icon-eject-24.png");
     -fx-background-size: 14;
 }
 
 .button-delete {
-    -fx-translate-x: -8;
-    -fx-translate-y: -8;
     -fx-background-image: url("icon-delete-24.png");
     -fx-background-size: 14;
 }
 
 .button-settings {
-    -fx-translate-x: -8;
-    -fx-translate-y: -8;
     -fx-background-image: url("icon-options-24.png");
     -fx-background-size: 14;
-}
-
-.button-delete button-settings eject-eject:hover {
-    -fx-border-color: whitesmoke;
 }

@@ -128,7 +128,6 @@ object Main extends JFXApp {
   val mainControlsLayout = new StackPane {
     styleClass ++= Seq("player-controls-bg")
     hgrow = Priority.ALWAYS
-//    vgrow = Priority.ALWAYS
     minHeight = 90
     maxHeight = 90
     content = Seq(playerControlsLayout, otherControlsLayout)
