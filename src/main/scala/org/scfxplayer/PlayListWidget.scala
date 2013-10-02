@@ -102,19 +102,20 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
         Option(tableView.getSelectionModel().getSelectedItem()).map(onItemDblClicked(_))
     }
 
-    tableView.onDragDetected =  (event:MouseEvent) => {
-      // drag was detected, start drag-and-drop gesture
-      // we don't consume the event to allow column drag and drop to work
-      // event.consume(); 
-      // val textCursor = scalafx.scene.Cursor.TEXT
-      // textCursor.setText("aaa")
-      // tableView.setCursor(textCursor)
-      val selected = tableView.getSelectionModel().getSelectedItem();
-      if(selected !=null){
-        val db = tableView.startDragAndDrop(TransferMode.LINK)
-        val content = new ClipboardContent();
-        content.putString(selected.fullPath);
-        db.setContent(content);
+    tableView.onDragDetected =  (event:MouseEvent) => event.getTarget match {
+      case _ : com.sun.javafx.scene.control.skin.LabelSkin => {
+        //column dnd
+        ()
+      }
+      case _ => {
+        println(event.getTarget.getClass)
+        val selected = tableView.getSelectionModel().getSelectedItem();
+          if(selected !=null){
+            val db = tableView.startDragAndDrop(TransferMode.LINK)
+            val content = new ClipboardContent();
+            content.putString(selected.fullPath);
+            db.setContent(content);
+          }  
       }
     }
 
