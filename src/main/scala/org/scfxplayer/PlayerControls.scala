@@ -13,7 +13,6 @@ import scalafx.scene.text.Text
 import scalafx.animation._
 import scala.Some
 import scalafx.scene.shape.Rectangle
-//import scalafx.scene.image.{ImageView, Image}
 
 class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
   import scalafx.Includes._
@@ -66,9 +65,6 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
     minWidth = 32
     maxHeight = 32
     minHeight = 32
-//    graphic = new ImageView {
-//      image = new Image(getClass.getResource("/actions-media-skip-forward-icon-32.png").toExternalForm)
-//    }
     onMouseClicked = (event:MouseEvent) => {
       event.consume()
       playing.foreach(scheduleNextPlay(_))
