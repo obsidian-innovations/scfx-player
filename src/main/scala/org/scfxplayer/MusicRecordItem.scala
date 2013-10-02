@@ -2,10 +2,6 @@ package org.scfxplayer
 
 import scalafx.beans.property.StringProperty
 import org.joda.time.Duration
-import org.joda.time.format.PeriodFormatterBuilder
-
-import play.api.libs.json._
-import scala.util.Try
 
 case class MusicRecordItem(artist_ : Option[String],
                       album_ : Option[String],
@@ -18,23 +14,12 @@ case class MusicRecordItem(artist_ : Option[String],
   val track = new StringProperty(this, "track", track_.getOrElse(""))
   val fileName = new StringProperty(this, "fileName", fileName_)
   val trackNameMade = new StringProperty(this, "trackNameMade", track_.getOrElse(cutExt(fileName_)))
-  val duration = new StringProperty(this, "duration", durationToString(duration_))
+  val duration = new StringProperty(this, "duration", PlayerUtils.durationToString(duration_))
 
   private var markedDeleted_ = false
   def markDeleted { markedDeleted_ = true }
   def isMarkedDeleted = markedDeleted_
 
   private def cutExt(s:String) = s.reverse.dropWhile(_ != '.').drop(1).reverse.toString
-  private def durationToString(d:Duration):String = {
-    val formatter = new PeriodFormatterBuilder()
-      .appendHours()
-      .appendSuffix(":")
-      .appendMinutes()
-      .appendSuffix(":")
-      .appendSeconds()
-      .appendSuffix("")
-      .toFormatter()
-    formatter.print(d.toPeriod())
-  }
 
 }

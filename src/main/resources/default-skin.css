@@ -1,4 +1,35 @@
 
+.root {
+    /* A bright blue for highlighting/accenting objects.  For example: selected
+     * text; selected items in menus, lists, trees, and tables; progress bars;
+     * default buttons.
+     */
+    -fx-accent: transparent;
+
+    /* A bright blue for the focus indicator of objects. Typically used as the
+     * first color in -fx-background-color for the "focused" pseudo-class. Also
+     * typically used with insets of -1.4 to provide a glowing effect.
+     *
+     * TODO: should this be derived from -fx-accent?
+     */
+    -fx-focus-color: transparent;
+}
+
+/*.root:row-selection {
+    -fx-accent: green;
+    -fx-focus-color: green;
+}*/
+
+.time-left-text-indicator {
+    -fx-font-size: 10;
+    -fx-fill: dimgray;
+}
+
+.playing-now-indicator {
+    -fx-font-size: 16;
+    -fx-fill: lightslategray;
+}
+
 .player-controls-bg {
     -fx-background-image: url("player-controls-bg.png");
     -fx-background-repeat: repeat-x;
@@ -22,14 +53,11 @@
 }
 
 .player-button:hover {
-    -fx-effect: dropshadow(gaussian, lightslategray, 2, 0.2, 0, 0);
-    /*-fx-border-color: whitesmoke;*/
+    -fx-effect: innershadow(gaussian, whitesmoke, 5, 0.2, 0, 0);
 }
 
 .player-button:pressed {
-    /*-fx-effect: innershadow(gaussian, lightslategray, 1, 0.1, 0, 0);*/
-    -fx-effect: null;
-    /*-fx-border-color: whitesmoke;*/
+    -fx-effect: innershadow(gaussian, whitesmoke, 5, 0.7, 0, 0);
 }
 
 .button-forward {
@@ -49,28 +77,16 @@
 }
 
 .button-eject {
-    /* no padding, insets, borders work?!? */
-    /*-fx-padding: 0 0 5 5;*/
-    -fx-translate-x: 8;
-    -fx-translate-y: -8;
     -fx-background-image: url("icon-eject-24.png");
     -fx-background-size: 14;
 }
 
 .button-delete {
-    -fx-translate-x: -8;
-    -fx-translate-y: -8;
     -fx-background-image: url("icon-delete-24.png");
     -fx-background-size: 14;
 }
 
 .button-settings {
-    -fx-translate-x: -8;
-    -fx-translate-y: -8;
     -fx-background-image: url("icon-options-24.png");
     -fx-background-size: 14;
-}
-
-.button-delete button-settings eject-eject:hover {
-    -fx-border-color: whitesmoke;
 }

@@ -11,6 +11,7 @@ import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
 import scalafx.scene.layout._
 import scalafx.geometry.{Side, Pos}
+import scalafx.scene.image.Image
 import scala.util.Try
 
 object Main extends JFXApp {
@@ -128,13 +129,13 @@ object Main extends JFXApp {
   val mainControlsLayout = new StackPane {
     styleClass ++= Seq("player-controls-bg")
     hgrow = Priority.ALWAYS
-//    vgrow = Priority.ALWAYS
     minHeight = 90
     maxHeight = 90
     content = Seq(playerControlsLayout, otherControlsLayout)
   }
 
   val mainLayout = new VBox {
+    styleClass ++= Seq("root")
     vgrow = Priority.ALWAYS
     hgrow = Priority.ALWAYS
     content = Seq(mainControlsLayout, musicRecTable)
@@ -142,6 +143,7 @@ object Main extends JFXApp {
 
   stage = new PrimaryStage {
     title = "Demo ScalaFX Player"
+    icons ++= Seq(new Image(getClass.getResource("/app-icon-32.png").toExternalForm))
     minHeight = 300
     minWidth = 400
     width = 640
