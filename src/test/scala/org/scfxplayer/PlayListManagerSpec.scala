@@ -36,14 +36,14 @@ class PlayListManagerSpec extends Specification {
 //    }
 
     "save and open default" in {
-      val fh = new FileHandling {
+      implicit val fh = new FileHandling {
         def homeFolder: String =  System.getProperty("java.io.tmpdir")
 
         def fileSep: String = JvmFileHandling.fileSep
       }
 
       PlayListManager.saveToDefault(playlist) must beSuccessfulTry
-      PlayListManager.openDefault() must beSuccessfulTry.withValue(playlist)
+      PlayListManager.openDefault must beSuccessfulTry.withValue(playlist)
     }
   }
 }

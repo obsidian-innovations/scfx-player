@@ -59,7 +59,7 @@ object PlayListManager {
   val playerHomeName = ".scfx-player"
   val defaultPlaylistName = "scfx-def-playlist.json"
 
-  def defaultLocation(fileHandling:FileHandling = JvmFileHandling):Try[String] = Try {
+  def defaultLocation(implicit fileHandling:FileHandling = JvmFileHandling):Try[String] = Try {
     val homeFolderPath = fileHandling.homeFolder
     val homeFolder = new java.io.File(homeFolderPath)
     val fileSep = fileHandling.fileSep
@@ -69,9 +69,10 @@ object PlayListManager {
     playerHome.getAbsolutePath + fileSep + defaultPlaylistName
   }
 
-  def saveToDefault(playlist:PlayList):Try[Unit] = defaultLocation().flatMap(loc => save(loc,playlist))
+  def saveToDefault(playlist:PlayList)(implicit fileHandling:FileHandling = JvmFileHandling):Try[Unit] =
+    defaultLocation.flatMap(loc => save(loc,playlist))
 
-  def openDefault():Try[PlayList] = defaultLocation().flatMap(loc => open(loc))
+  def openDefault(implicit fileHandling:FileHandling = JvmFileHandling):Try[PlayList] = defaultLocation.flatMap(loc => open(loc))
 
 
 }
