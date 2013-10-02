@@ -31,6 +31,7 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
             column.getTableView.selectionModel.value.clearSelection()
             column.getTableView.selectionModel.value.select(targetIdx)
           }
+          db.clear()
           true
         } else false
         event.setDropCompleted(success)
@@ -125,16 +126,17 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
       }
     }
 
-    tableView.onDragDropped = (event:DragEvent) => {
-      event.consume()
-      val db = event.getDragboard()
-      val success = if (event.getDragboard().hasString()) {
-        println(event.gestureTarget)
-        val text = db.getString()
-        true;
-      } else false
-      event.setDropCompleted(success)
-    }
+    // tableView.onDragDropped = (event:DragEvent) => {
+    //   event.consume()
+    //   val db = event.getDragboard()
+    //   val success = if (event.getDragboard().hasString()) {
+    //     println(event.gestureTarget)
+    //     val text = db.getString()
+    //     db.clear()
+    //     true;
+    //   } else false
+    //   event.setDropCompleted(success)
+    // }
 
     tableView
   }
