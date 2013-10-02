@@ -6,8 +6,8 @@ import scalafx.collections.ObservableBuffer
 import scalafx.scene.input.{DragEvent, MouseEvent}
 import javafx.scene.input.{ClipboardContent, TransferMode}
 import javafx.scene.control.CheckMenuItem
-import javafx.event.EventHandler
 import javafx.scene.{ control => jfxsc }
+import javafx.event.EventHandler
 
 //http://blog.ngopal.com.np/2012/05/06/javafx-drag-and-drop-cell-in-listview/
 
@@ -95,6 +95,11 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
       })
   }
 
+  private def isColumn(target: javafx.event.EventTarget):Boolean =
+    target.isInstanceOf[com.sun.javafx.scene.control.skin.LabelSkin]
+
+  private def isRow(target: javafx.event.EventTarget):Boolean = !isColumn(target)
+
   //https://forums.oracle.com/thread/2413845
   def setupDragAndDrop(tableView:TableView[MusicRecordItem], onItemDblClicked: MusicRecordItem => Unit):TableView[MusicRecordItem] = {
     tableView.onMouseClicked = (event:MouseEvent) => {
@@ -102,42 +107,26 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
         Option(tableView.getSelectionModel().getSelectedItem()).map(onItemDblClicked(_))
     }
 
-    tableView.onDragDetected =  (event:MouseEvent) => event.getTarget match {
-      case _ : com.sun.javafx.scene.control.skin.LabelSkin => {
-        //column dnd
-        ()
-      }
-      case _ => {
-        println(event.getTarget.getClass)
+    tableView.onDragDetected =  (event:MouseEvent) => {
+      if(isRow(event.getTarget)){
         val selected = tableView.getSelectionModel().getSelectedItem();
-          if(selected !=null){
-            val db = tableView.startDragAndDrop(TransferMode.LINK)
-            val content = new ClipboardContent();
-            content.putString(selected.fullPath);
-            db.setContent(content);
-          }  
+        if(selected !=null){
+          val db = tableView.startDragAndDrop(TransferMode.LINK)
+          val content = new ClipboardContent();
+          content.putString(selected.fullPath);
+          db.setContent(content);
       }
-    }
+    }}
 
     tableView.onDragOver =  (event:DragEvent) => {
-      event.consume()
-      val db = event.getDragboard()
-      if (event.getDragboard().hasString()) {
-        event.acceptTransferModes(TransferMode.LINK)
+      if(isRow(event.getTarget)){
+        event.consume()
+        val db = event.getDragboard()
+        if (event.getDragboard().hasString()) {
+          event.acceptTransferModes(TransferMode.LINK)
+        }
       }
     }
-
-    // tableView.onDragDropped = (event:DragEvent) => {
-    //   event.consume()
-    //   val db = event.getDragboard()
-    //   val success = if (event.getDragboard().hasString()) {
-    //     println(event.gestureTarget)
-    //     val text = db.getString()
-    //     db.clear()
-    //     true;
-    //   } else false
-    //   event.setDropCompleted(success)
-    // }
 
     tableView
   }
@@ -149,7 +138,7 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
       columns ++= List(durationColumn, trackColumn, albumColumn, artistColumn)
     }
     table.selectionModel.value.setSelectionMode(SelectionMode.MULTIPLE)
-    setupDragAndDrop(table, onItemDblClicked)
+    //setupDragAndDrop(table, onItemDblClicked)
     table
   }
 }
