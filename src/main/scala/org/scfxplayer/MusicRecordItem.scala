@@ -37,5 +37,4 @@ case class MusicRecordItem(artist_ : Option[String],
     formatter.print(d.toPeriod())
   }
 
-  def dndString: String = s"${artist.value}-${album.value}-${track.value}"
 }

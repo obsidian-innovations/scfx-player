@@ -7,15 +7,14 @@ import scalafx.scene.input.{DragEvent, MouseEvent}
 import javafx.scene.input.{ClipboardContent, TransferMode}
 import javafx.scene.control.CheckMenuItem
 import javafx.event.EventHandler
-import javafx.scene.{ control => jfxsc }
-import scalafx.scene.text.Text
-import scalafx.scene.image.WritableImage
-import scalafx.scene.{Cursor, ImageCursor, SnapshotParameters}
+
 
 //http://blog.ngopal.com.np/2012/05/06/javafx-drag-and-drop-cell-in-listview/
 
 class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
   import scalafx.Includes._
+
+  private val table = new TableView[MusicRecordItem](musicRecItems)
 
   def attachDnDToColumn(column:TableColumn[MusicRecordItem, String]):TableColumn[MusicRecordItem, String] = {
     val oldFactory = column.delegate.cellFactoryProperty().getValue()
@@ -97,37 +96,25 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
       })
   }
 
-  def textCursor(tableView:TableView[MusicRecordItem], fullPath:String):Option[Cursor] = {
-    musicRecItems.find(_.fullPath == fullPath).map { item =>
-      val str = item.dndString
-      val img = (new Text { text = str }).snapshot(new SnapshotParameters,new WritableImage(500,50))
-      val cur = new ImageCursor(img)
-      cur
-    }
-  }
-
   //https://forums.oracle.com/thread/2413845
   def setupDragAndDrop(tableView:TableView[MusicRecordItem], onItemDblClicked: MusicRecordItem => Unit):TableView[MusicRecordItem] = {
-
-    val originalCursor = tableView.getCursor
 
     tableView.onMouseClicked = (event:MouseEvent) => {
       if(event.getClickCount() == 2)
         Option(tableView.getSelectionModel().getSelectedItem()).map(onItemDblClicked(_))
     }
 
+
     tableView.onDragDetected =  (event:MouseEvent) => {
       // drag was detected, start drag-and-drop gesture
       // we don't consume the event to allow column drag and drop to work
-      // event.consume(); 
+      // event.consume();
       val selected = tableView.getSelectionModel().getSelectedItem();
       if(selected !=null){
         val db = tableView.startDragAndDrop(TransferMode.LINK)
         val content = new ClipboardContent();
         content.putString(selected.fullPath);
         db.setContent(content);
-        println("detected")
-        textCursor(tableView,selected.fullPath).foreach(tableView.setCursor(_))
       }
     }
 
@@ -135,7 +122,6 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
       event.consume()
       val db = event.getDragboard()
       if (event.getDragboard().hasString()) {
-        println("over")
         event.acceptTransferModes(TransferMode.LINK)
       }
     }
@@ -146,7 +132,6 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
       val success = if (event.getDragboard().hasString()) {
         true;
       } else false
-      tableView.setCursor(originalCursor)
       event.setDropCompleted(success)
     }
 
@@ -154,11 +139,11 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
   }
 
   def tableView(onItemDblClicked: MusicRecordItem => Unit):TableView[MusicRecordItem] = {
-    val table = new TableView[MusicRecordItem](musicRecItems) {
-      vgrow = Priority.ALWAYS
-      hgrow = Priority.ALWAYS
-      columns ++= List(durationColumn, trackColumn, albumColumn, artistColumn)
-    }
+
+    table.vgrow = Priority.ALWAYS
+    table.hgrow = Priority.ALWAYS
+    table.columns ++= List(durationColumn, trackColumn, albumColumn, artistColumn)
+
     table.selectionModel.value.setSelectionMode(SelectionMode.MULTIPLE)
     setupDragAndDrop(table, onItemDblClicked)
     table
