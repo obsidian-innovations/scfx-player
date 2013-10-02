@@ -1,0 +1,92 @@
+
+.root {
+    /* A bright blue for highlighting/accenting objects.  For example: selected
+     * text; selected items in menus, lists, trees, and tables; progress bars;
+     * default buttons.
+     */
+    -fx-accent: transparent;
+
+    /* A bright blue for the focus indicator of objects. Typically used as the
+     * first color in -fx-background-color for the "focused" pseudo-class. Also
+     * typically used with insets of -1.4 to provide a glowing effect.
+     *
+     * TODO: should this be derived from -fx-accent?
+     */
+    -fx-focus-color: transparent;
+}
+
+/*.root:row-selection {
+    -fx-accent: green;
+    -fx-focus-color: green;
+}*/
+
+.time-left-text-indicator {
+    -fx-font-size: 10;
+    -fx-fill: dimgray;
+}
+
+.playing-now-indicator {
+    -fx-font-size: 16;
+    -fx-fill: lightslategray;
+}
+
+.player-controls-bg {
+    -fx-background-image: url("player-controls-bg.png");
+    -fx-background-repeat: repeat-x;
+    -fx-background-size: auto stretch;
+}
+
+.player-button {
+    -fx-border-radius: 4;
+    -fx-border-color: transparent;
+    -fx-background-size: 24;
+    /*-fx-background-radius: 15;*/
+    -fx-effect: null;
+    -fx-background-color: transparent;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}
+
+.player-button:focused {
+    /*-fx-background-insets: 0, 0, 1, 2;*/
+    /*-fx-background-color: transparent;*/
+}
+
+.player-button:hover {
+    -fx-effect: innershadow(gaussian, whitesmoke, 5, 0.2, 0, 0);
+}
+
+.player-button:pressed {
+    -fx-effect: innershadow(gaussian, whitesmoke, 5, 0.7, 0, 0);
+}
+
+.button-forward {
+    -fx-background-image: url("icon-forward-32.png");
+}
+
+.button-backward {
+    -fx-background-image: url("icon-backward-32.png");
+}
+
+.button-play {
+    -fx-background-image: url("icon-play-32.png");
+}
+
+.button-play-paused {
+    -fx-background-image: url("icon-pause-32.png");
+}
+
+.button-eject {
+    -fx-background-image: url("icon-eject-24.png");
+    -fx-background-size: 14;
+}
+
+.button-delete {
+    -fx-background-image: url("icon-delete-24.png");
+    -fx-background-size: 14;
+}
+
+.button-settings {
+    -fx-background-image: url("icon-options-24.png");
+    -fx-background-size: 14;
+}

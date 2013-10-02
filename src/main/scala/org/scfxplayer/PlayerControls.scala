@@ -14,21 +14,20 @@ import scalafx.animation._
 import scala.Some
 import scalafx.scene.shape.Rectangle
 
-class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
+class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
   import scalafx.Includes._
 
   private val timePosSlider = new Slider {
-    style = "-fx-padding: 0 10 0 10;"
     hgrow = Priority.ALWAYS
     vgrow = Priority.ALWAYS
   }
 
   private val volumeSlider:Slider = new Slider {
+    style = "-fx-padding: 0 0 0 10;"
     hgrow = Priority.NEVER
     vgrow = Priority.ALWAYS
-    maxWidth = 80
-    minWidth = 80
-    prefWidth = 80
+    maxWidth = 90
+    minWidth = 90
     min = 0.0
     max = 1.0
     opacity = 0.75
@@ -44,6 +43,7 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
   }
 
   private val playingNowText:Text = new Text {
+    styleClass ++= Seq("playing-now-indicator")
     layoutBounds onChange {
       (t, oldVal, newVal) => {
         updateScroller(-1.0 * newVal.getWidth, scroller.fromX.value, scroller.duration.value)
@@ -52,12 +52,19 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
   }
 
   private val playBtn:Button = new Button {
-    prefWidth = 40
+    styleClass ++= List("player-button", "button-play")
+    maxWidth = 32
+    minWidth = 32
+    maxHeight = 32
+    minHeight = 32
   }
 
   private val nextBtn:Button = new Button {
-    prefWidth = 40
-    text = ">"
+    styleClass ++= List("player-button", "button-forward")
+    maxWidth = 32
+    minWidth = 32
+    maxHeight = 32
+    minHeight = 32
     onMouseClicked = (event:MouseEvent) => {
       event.consume()
       playing.foreach(scheduleNextPlay(_))
@@ -65,22 +72,36 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
   }
 
   private val prevBtn:Button = new Button {
-    prefWidth = 40
-    text = "<"
+    styleClass ++= List("player-button", "button-backward")
+    maxWidth = 32
+    minWidth = 32
+    maxHeight = 32
+    minHeight = 32
     onMouseClicked = (event:MouseEvent) => {
       event.consume()
       playing.foreach(schedulePrevPlay(_))
     }
   }
 
-  private val timePosLayout = new HBox {
-    hgrow = Priority.ALWAYS
-    vgrow = Priority.ALWAYS
-    alignment = Pos.CENTER
-    content = Seq(timePosSlider)
+  private val timeMark = new Text {
+
+    styleClass ++= Seq("time-left-text-indicator")
+    managed = false
+    translateY = 23
+    layoutBounds onChange updateTimeLeftIdk
   }
 
-  private val playingTextLayout:HBox = new HBox {
+  private val timePosLayout:VBox = new VBox {
+    hgrow = Priority.ALWAYS
+    vgrow = Priority.NEVER
+    alignment = Pos.BOTTOM_CENTER
+    content = Seq(timePosSlider, timeMark)
+    width onChange updateTimeLeftIdk
+  }
+
+  private lazy val playingTextLayout:HBox = new HBox {
+    alignment = Pos.CENTER_LEFT
+    vgrow = Priority.ALWAYS
     hgrow = Priority.ALWAYS
     content = Seq(playingNowText)
     width onChange {
@@ -90,19 +111,11 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
         updateScroller(scroller.toX.value, newVal.doubleValue, Duration(if(playFrom.isNaN) 0.0 else playFrom))
       }
     }
-  }
-
-  private val textNvolumeLayout = new HBox {
-    hgrow = Priority.ALWAYS
-    vgrow = Priority.ALWAYS
-    alignment = Pos.CENTER
-    content = Seq(playingTextLayout, volumeSlider)
-  }
-
-  private val volNposNtextLayout = new VBox {
-    hgrow = Priority.ALWAYS
-    vgrow = Priority.ALWAYS
-    content = Seq(timePosLayout, textNvolumeLayout)
+    height onChange {
+      (s, oldv, newv) => {
+        playingTextLayout.clip = new Rectangle {width = playingTextLayout.width.value; height = newv.doubleValue}
+      }
+    }
   }
 
   private lazy val scroller = new TranslateTransition {
@@ -115,6 +128,10 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     node = playingNowText
   }
 
+  private def updateTimeLeftIdk {
+    timeMark.translateX = timePosLayout.width.value - timeMark.layoutBounds.value.getWidth - 5
+  }
+
   private def updateScroller(moveto:Double, movefrom:Double, playfrom:Duration) {
     scroller.stop()
     scroller.fromX = movefrom
@@ -123,7 +140,14 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     scroller.playFrom(playfrom)
   }
 
-  content = Seq(prevBtn, playBtn, nextBtn, volNposNtextLayout)
+  private val btnsLayout = new HBox {
+    style = "-fx-padding: 5 0 5 0;"
+    alignment = Pos.CENTER
+    spacing = 15
+    content = Seq(prevBtn, playBtn, nextBtn, volumeSlider)
+  }
+
+  content = Seq(playingTextLayout, timePosLayout, btnsLayout)
 
   private var player_ : () => Option[MediaPlayer] = () => None
   private var playing_ : () => Option[MusicRecordItem] = () => None
@@ -133,9 +157,10 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     playing_ = () => None
     timePosSlider.value onChange {}
     playBtn.onMouseClicked = onPlayClickedInit()_
-    playBtn.text = "Play"
+    playBtn.styleClass -= "button-play-paused"
     scroller.stop()
     playingNowText.text = ""
+    timeMark.text = ""
   }
 
   def stop() = initState()
@@ -184,24 +209,35 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends HBox {
     else player.play()
   }
 
+  private def updateTimeLeftIndicator() {
+    player_().foreach { p =>
+      val timeleft = (p.totalDuration.value - p.currentTime.value).toMillis.toLong
+      timeMark.text = "-" + PlayerUtils.millisToString(timeleft)
+    }
+  }
+
   private def onPlayerReady(mplayer:MediaPlayer) = {
     mplayer.volume = volumeSlider.value.value
-    mplayer.onPlaying = {playBtn.text = "Pause"}
-    mplayer.onPaused = {playBtn.text = "Play"}
+    mplayer.onPlaying = {playBtn.styleClass += "button-play-paused"; ()}
+    mplayer.onPaused = {playBtn.styleClass -= "button-play-paused"; ()}
     playBtn.onMouseClicked = onPlayClicked(mplayer)_
     timePosSlider.min = 0.0
     timePosSlider.max = mplayer.media.duration.value.toSeconds
     timePosSlider.value = 0.0
     timePosSlider.value onChange {
       if(!timePosSlider.valueChanging.value || !isPlaying(mplayer)) {
-        mplayer.volume = 0.0
-        mplayer.seek(Duration(timePosSlider.value.value * 1000.0))
-        mplayer.volume = volumeSlider.value.value
+        mplayer.mute = true
+        Try(mplayer.seek(Duration(timePosSlider.value.value * 1000.0))).foreach { _ =>
+          updateTimeLeftIndicator()
+        }
+        mplayer.mute = false
       }
     }
     mplayer.currentTime onChange {
       timePosSlider.valueChanging = true
-      Try(timePosSlider.value = mplayer.currentTime.value.toSeconds)
+      Try(timePosSlider.value = mplayer.currentTime.value.toSeconds).foreach { _ =>
+        updateTimeLeftIndicator()
+      }
       timePosSlider.valueChanging = false
     }
     mplayer.play()

@@ -8,14 +8,11 @@ import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.Scene
 import scalafx.stage.{FileChooser, WindowEvent}
 import scalafx.collections.ObservableBuffer
-import scalafx.scene.control.TableColumn._
 import scalafx.scene.control._
-import scalafx.scene.layout.{Region, Priority, HBox, VBox}
+import scalafx.scene.layout._
 import scalafx.geometry.{Side, Pos}
-import javafx.scene.control.CheckMenuItem
-import scalafx.event.{Event, ActionEvent}
+import scalafx.scene.image.Image
 import scala.util.Try
-import scalafx.collections.ObservableBuffer.Remove
 
 object Main extends JFXApp {
   import scalafx.Includes._
@@ -57,18 +54,17 @@ object Main extends JFXApp {
   val musicRecTable = playList.tableView((i:MusicRecordItem) => playerControls.play(i))
 
   val playerControls = new PlayerControls(musicRecItems) {
-    prefHeight = 40
-    minHeight = 40
-    maxHeight = 40
     alignment = Pos.CENTER
+    minWidth = 200
+    maxWidth = 500
     hgrow = Priority.ALWAYS
     vgrow = Priority.ALWAYS
   }
 
   val playlistSettingsBtn:Button = new Button {
-    text = "..."
-    prefHeight = 40
-    prefWidth = 40
+    styleClass ++= List("player-button", "button-settings")
+    prefWidth = 24
+    prefHeight = 24
     onMouseClicked = new EventHandler[MouseEvent] {
       override def handle(event:MouseEvent) {
         event.consume()
@@ -82,10 +78,9 @@ object Main extends JFXApp {
   }
 
   val deleteFilesBtn = new Button {
-    text = "Delete"
-    prefHeight = 40 // vgrow policy didn't work, set it directly for now
-    vgrow = Priority.ALWAYS // Doesn't work?!?
-    hgrow = Priority.ALWAYS
+    styleClass ++= List("player-button", "button-delete")
+    prefWidth = 24
+    prefHeight = 24
     onMouseClicked = new EventHandler[MouseEvent] {
       override def handle(event:MouseEvent) {
         event.consume()
@@ -100,9 +95,9 @@ object Main extends JFXApp {
   }
 
   val openFilesBtn = new Button {
-    text = "Open"
-    vgrow = Priority.ALWAYS // Doesn't work?!?
-    prefHeight = 40 // vgrow policy didn't work, set it directly for now
+    styleClass ++= List("player-button", "button-eject")
+    prefWidth = 24
+    prefHeight = 24
     onMouseClicked = new EventHandler[MouseEvent] {
       override def handle(event:MouseEvent) {
         event.consume()
@@ -114,28 +109,47 @@ object Main extends JFXApp {
   }
 
   val playerControlsLayout = new HBox {
+    val lspacer = new Region {hgrow = Priority.SOMETIMES}
+    val rspacer = new Region {hgrow = Priority.SOMETIMES}
     hgrow = Priority.ALWAYS
-    alignment = Pos.CENTER_LEFT
-    minHeight = 40
-    maxHeight = 40
-    prefHeight = 40
-    fillHeight = true // Doesn't work?!?
-    content ++= List(openFilesBtn, deleteFilesBtn, playerControls, playlistSettingsBtn)
+    vgrow = Priority.ALWAYS
+    content = Seq(lspacer, playerControls, rspacer)
+  }
+
+  val otherControlsLayout = new HBox {
+    val spacer = new Region {hgrow = Priority.ALWAYS; pickOnBounds = false}
+    pickOnBounds = false
+    hgrow = Priority.ALWAYS
+    vgrow = Priority.ALWAYS
+    alignment = Pos.BOTTOM_CENTER
+    spacing = 6
+    content = Seq(openFilesBtn, spacer, playlistSettingsBtn, deleteFilesBtn)
+  }
+
+  val mainControlsLayout = new StackPane {
+    styleClass ++= Seq("player-controls-bg")
+    hgrow = Priority.ALWAYS
+    minHeight = 90
+    maxHeight = 90
+    content = Seq(playerControlsLayout, otherControlsLayout)
   }
 
   val mainLayout = new VBox {
+    styleClass ++= Seq("root")
     vgrow = Priority.ALWAYS
     hgrow = Priority.ALWAYS
-    content = Seq(playerControlsLayout, musicRecTable)
+    content = Seq(mainControlsLayout, musicRecTable)
   }
 
   stage = new PrimaryStage {
     title = "Demo ScalaFX Player"
+    icons ++= Seq(new Image(getClass.getResource("/app-icon-32.png").toExternalForm))
     minHeight = 300
     minWidth = 400
     width = 640
     height = 480
     scene = new Scene {
+      stylesheets ++= List("default-skin.css")
       width onChange {mainLayout.setPrefWidth(scene.value.getWidth);}
       height onChange {mainLayout.setPrefHeight(scene.value.getHeight);}
       content = mainLayout
