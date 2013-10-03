@@ -22,57 +22,37 @@ object PlayList {
   }
 }
 
-object PlayListManager {
-  def save(filename:String, items:PlayList):Try[Unit] = Try {
-    import Writes._
-    val playlist = Json.stringify(Json.toJson(items))
-    val output = new java.io.PrintWriter(new java.io.File(filename))
-    try {
-      output.write(playlist)
-    } finally {
-      output.close()
-    }
-  }
+case class PlayListFile(location:String,playlist:PlayList)
 
-  private def readFile(file:String ):Try[String] = Try {
-    val reader = new java.io.BufferedReader( new java.io.FileReader(file))
-    var line:String = null;
-    val stringBuilder = new StringBuilder();
-    val ls = System.getProperty("line.separator");
-    line = reader.readLine()
-    while( line != null ) {
-      stringBuilder.append( line );
-      stringBuilder.append( ls );
-      line = reader.readLine()
-    }
+object PlayListFile extends PlayerFiles{
+  val defaultLoc = defaultLocation(PlayListManager.defaultPlaylistName)
+}
 
-    stringBuilder.toString();
-  }
+object PlayListManager extends PlayerFiles {
+  val defaultPlaylistName = "scfx-def-playlist.playlist"
 
-  def open(filename:String):Try[PlayList] =  {
-    //val lines = scala.io.Source.fromFile(filename,"UTF-8").mkString
-    readFile(filename).map{ lines =>
-      Try(Json.parse(lines).as[PlayList])
-    }.flatten
-  }
-
-  val playerHomeName = ".scfx-player"
-  val defaultPlaylistName = "scfx-def-playlist.json"
-
-  def defaultLocation(implicit fileHandling:FileHandling = JvmFileHandling):Try[String] = Try {
-    val homeFolderPath = fileHandling.homeFolder
-    val homeFolder = new java.io.File(homeFolderPath)
-    val fileSep = fileHandling.fileSep
-    val playerHomePath = homeFolder + fileSep + playerHomeName
-    val playerHome = new java.io.File(playerHomePath)
-    if(!playerHome.exists) playerHome.mkdir()
-    playerHome.getAbsolutePath + fileSep + defaultPlaylistName
-  }
 
   def saveToDefault(playlist:PlayList)(implicit fileHandling:FileHandling = JvmFileHandling):Try[Unit] =
-    defaultLocation.flatMap(loc => save(loc,playlist))
+    defaultLocation(defaultPlaylistName).flatMap(loc => save(loc,playlist))
 
-  def openDefault(implicit fileHandling:FileHandling = JvmFileHandling):Try[PlayList] = defaultLocation.flatMap(loc => open(loc))
+  def openDefault(implicit fileHandling:FileHandling = JvmFileHandling):Try[PlayList] =
+    defaultLocation(defaultPlaylistName).flatMap(loc => open[PlayList](loc))
+
+  def openFromSettings(implicit fileHandling:FileHandling = JvmFileHandling):Try[PlayList] = for {
+    settings <- Settings.openOrDefault
+    loc <- location(settings.playlistLocation)
+    playlist <- open[PlayList](loc) orElse openDefault
+  } yield playlist
+
+  def saveInSettings(plFile:PlayListFile)(implicit fileHandling:FileHandling = JvmFileHandling):Try[Unit] = for {
+    settings <- Settings.openOrDefault
+    _ <- save(plFile.location,plFile.playlist)
+    _ <- Settings.save(settings.copy(playlistLocation = plFile.location))
+  } yield ()
 
 
+  def saveCurrent(playList:PlayList)(implicit fileHandling:FileHandling = JvmFileHandling):Try[Unit] = for {
+    settings <- Settings.openOrDefault
+    _ <- save(settings.playlistLocation,playList)
+  } yield ()
 }

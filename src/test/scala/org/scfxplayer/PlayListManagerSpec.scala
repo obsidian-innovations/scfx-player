@@ -22,7 +22,7 @@ class PlayListManagerSpec extends Specification {
     "save and load from file" in {
       val file = java.io.File.createTempFile("tmp-play","json")
       PlayListManager.save(file.getAbsolutePath,playlist) must beSuccessfulTry
-      PlayListManager.open(file.getAbsolutePath) must beSuccessfulTry.withValue(playlist)
+      PlayListManager.open[PlayList](file.getAbsolutePath) must beSuccessfulTry.withValue(playlist)
     }
 
 //    "get default location for playlists" in {

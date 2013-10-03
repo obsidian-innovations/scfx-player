@@ -17,11 +17,11 @@ import scala.util.Try
 object Main extends JFXApp {
   import scalafx.Includes._
 
-  val fchooser:FileChooser = new FileChooser()
-  val f = new FileChooser.ExtensionFilter("MP3 (MPEG-1 or MPEG-2 Audio Layer III)", Seq("*.mp3", "*.MP3"))
-  fchooser.getExtensionFilters.addAll(f)
-  fchooser.setTitle("Demo ScalaFX Player")
-  fchooser.setInitialDirectory(new File(System.getProperty("user.home")))
+//  val fchooser:FileChooser = new FileChooser()
+//  val f = new FileChooser.ExtensionFilter("MP3 (MPEG-1 or MPEG-2 Audio Layer III)", Seq("*.mp3", "*.MP3"))
+//  fchooser.getExtensionFilters.addAll(f)
+//  fchooser.setTitle("Demo ScalaFX Player")
+//  fchooser.setInitialDirectory(new File(System.getProperty("user.home")))
 
   def onRemovingItems(idx:Int, els:Traversable[MusicRecordItem]) = {
     els.filter(x => playerControls.isPlaying(x) && x.isMarkedDeleted).foreach(_ => playerControls.stop())
@@ -94,19 +94,39 @@ object Main extends JFXApp {
     }
   }
 
-  val openFilesBtn = new Button {
-    styleClass ++= List("player-button", "button-eject")
-    prefWidth = 24
-    prefHeight = 24
-    onMouseClicked = new EventHandler[MouseEvent] {
-      override def handle(event:MouseEvent) {
-        event.consume()
-        Try(fchooser.showOpenMultipleDialog(parent.value.getScene.getWindow)).map { fs =>
-          loadFiles(fs)
+  val plMgr = new PlayListManagerMenu(musicRecItems)
+
+
+  lazy val openFilesBtn = new Button {
+      styleClass ++= List("player-button", "button-eject")
+      prefWidth = 24
+      prefHeight = 24
+      onMouseClicked = new EventHandler[MouseEvent] {
+        override def handle(event:MouseEvent) {
+          val plMgrMenu = plMgr.menu(parent.value)
+          event.consume()
+          val topNode = parent.value.getScene.content.head
+          if(!plMgrMenu.showing.value)
+            plMgrMenu.show(topNode, Side.LEFT, event.getSceneX, event.getSceneY)
+          else
+            plMgrMenu.hide()
         }
       }
     }
-  }
+
+//  val openFilesBtn = new Button {
+//    styleClass ++= List("player-button", "button-eject")
+//    prefWidth = 24
+//    prefHeight = 24
+//    onMouseClicked = new EventHandler[MouseEvent] {
+//      override def handle(event:MouseEvent) {
+//        event.consume()
+//        Try(fchooser.showOpenMultipleDialog(parent.value.getScene.getWindow)).map { fs =>
+//          loadFiles(fs)
+//        }
+//      }
+//    }
+//  }
 
   val playerControlsLayout = new HBox {
     val lspacer = new Region {hgrow = Priority.SOMETIMES}
@@ -156,23 +176,19 @@ object Main extends JFXApp {
       onCloseRequest = (event:WindowEvent) => {
         playerControls.stop()
         val pl = PlayList(musicRecItems.map(_.fullPath).toList)
-        PlayListManager.saveToDefault(pl)
+        PlayListManager.saveCurrent(pl)
       }
-      onShowing = (event:WindowEvent) => { loadDefaultPlaylist() }
+      onShowing = (event:WindowEvent) => { plMgr.loadDefaultPlaylist() }
     }
   }
 
-  def loadFiles(fs:Seq[java.io.File]) = {
-    fs.foreach { f => TrackMetaData(f) { mdTry => mdTry.foreach{ md =>
-      val item = new MusicRecordItem(md.artist, md.album, md.track, md.duration, f.getName, f.getAbsolutePath)
-      if(!musicRecItems.map(_.fullPath).contains(item.fullPath)) { musicRecItems += item }
-    }}}
-  }
+//  def loadFiles(fs:Seq[java.io.File]) = {
+//    fs.foreach { f => TrackMetaData(f) { mdTry => mdTry.foreach{ md =>
+//      val item = new MusicRecordItem(md.artist, md.album, md.track, md.duration, f.getName, f.getAbsolutePath)
+//      if(!musicRecItems.map(_.fullPath).contains(item.fullPath)) { musicRecItems += item }
+//    }}}
+//  }
 
-  def loadDefaultPlaylist():Unit = {
-    PlayListManager.openDefault().map{ playlist =>
-      loadFiles(playlist.files.map(new java.io.File(_)))
-    }
-  }
+
 
 }
