@@ -80,7 +80,6 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
 
     val addFileMenuItem = new MenuItem("Add Files") {
       onAction = (event: ActionEvent) => {
-        println("click")
         event.consume()
         Try(fchooser.showOpenMultipleDialog(parent.getScene.getWindow)).map { fs =>
           loadFiles(fs)
@@ -90,7 +89,6 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
 
     val openPlaylistMenuItem = new MenuItem("Open playlist") {
       onAction = (event: ActionEvent) => {
-        println("open click")
         event.consume()
         Try(plchooser.showOpenDialog(parent.getScene.getWindow)).map { file =>
           PlayListManager.open[PlayList](file.getAbsolutePath).map { pl =>
@@ -104,7 +102,6 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
 
     val savePlaylistMenuItem = new MenuItem("Save playlist") {
       onAction = (event: ActionEvent) => {
-        println("save click")
         event.consume()
         Try(plsaver.showSaveDialog(parent.getScene.getWindow)).map { file =>
           val pl = PlayList(musicRecItems.map(_.fullPath).toList)

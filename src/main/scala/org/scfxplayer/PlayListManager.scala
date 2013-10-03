@@ -1,6 +1,6 @@
 package org.scfxplayer
 
-import scala.util.Try
+import scala.util.{Try, Success, Failure }
 import play.api.libs.json._
 import org.apache.commons.codec.binary.Base64
 
@@ -40,9 +40,16 @@ object PlayListManager extends PlayerFiles {
 
   def openFromSettings(implicit fileHandling:FileHandling = JvmFileHandling):Try[PlayList] = for {
     settings <- Settings.openOrDefault
-    loc <- location(settings.playlistLocation)
-    playlist <- open[PlayList](loc) orElse openDefault
+    loc <- location(settings.playlistLocation) match {
+      case l@Success(_) => l
+      case f@Failure(_) => {
+        Settings.default.map(Settings.save(_))
+        PlayListFile.defaultLoc
+      }
+    }
+    playlist <- open[PlayList](loc)
   } yield playlist
+
 
   def saveInSettings(plFile:PlayListFile)(implicit fileHandling:FileHandling = JvmFileHandling):Try[Unit] = for {
     settings <- Settings.openOrDefault
