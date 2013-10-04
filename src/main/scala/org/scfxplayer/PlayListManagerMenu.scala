@@ -39,7 +39,8 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
   import FileChoosers._
 
   def loadFiles(fs:Seq[java.io.File]) = {
-    musicRecItems.clear()
+    if(!fs.isEmpty) musicRecItems.clear()
+
     fs.foreach { f => TrackMetaData(f) { mdTry => mdTry.foreach{ md =>
       val item = new MusicRecordItem(md.artist, md.album, md.track, md.duration, f.getName, f.getAbsolutePath)
       if(!musicRecItems.map(_.fullPath).contains(item.fullPath)) { musicRecItems += item }
