@@ -101,11 +101,7 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
   private def isRow(target: javafx.event.EventTarget):Boolean = !isColumn(target)
 
   //https://forums.oracle.com/thread/2413845
-  def setupDragAndDrop(tableView:TableView[MusicRecordItem], onItemDblClicked: MusicRecordItem => Unit):TableView[MusicRecordItem] = {
-    tableView.onMouseClicked = (event:MouseEvent) => {
-      if(event.getClickCount() == 2)
-        Option(tableView.getSelectionModel().getSelectedItem()).map(onItemDblClicked(_))
-    }
+  def setupDragAndDrop(tableView:TableView[MusicRecordItem]):TableView[MusicRecordItem] = {
 
     tableView.onDragDetected =  (event:MouseEvent) => {
       if(isRow(event.getTarget)){
@@ -138,6 +134,10 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
       columns ++= List(durationColumn, trackColumn, albumColumn, artistColumn)
     }
     table.selectionModel.value.setSelectionMode(SelectionMode.MULTIPLE)
+    table.onMouseClicked = (event:MouseEvent) => {
+      if(event.getClickCount() == 2)
+        Option(table.getSelectionModel().getSelectedItem()).map(onItemDblClicked(_))
+    }
     //setupDragAndDrop(table, onItemDblClicked)
     table
   }
