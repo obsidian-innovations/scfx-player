@@ -20,7 +20,6 @@ object FileChoosers {
 
   val playlistExt = "playlist"
 
-
   val plchooser:FileChooser = new FileChooser()
   val pl = new FileChooser.ExtensionFilter("playlists", Seq(s"*.${playlistExt}"))
   plchooser.getExtensionFilters.addAll(pl)
@@ -31,7 +30,6 @@ object FileChoosers {
   plsaver.getExtensionFilters.addAll(pl)
   plsaver.setTitle("Save playlist")
   plsaver.setInitialDirectory(new File(System.getProperty("user.home")))
-
 }
 
 class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) {
@@ -39,8 +37,6 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
   import scalafx.Includes._
 
   import FileChoosers._
-
-
 
   def loadFiles(fs:Seq[java.io.File]) = {
     musicRecItems.clear()
@@ -77,7 +73,6 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
 //      }
 //    }
 
-
     val addFileMenuItem = new MenuItem("Add Files") {
       onAction = (event: ActionEvent) => {
         event.consume()
@@ -99,7 +94,6 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
       }
     }
 
-
     val savePlaylistMenuItem = new MenuItem("Save playlist") {
       onAction = (event: ActionEvent) => {
         event.consume()
@@ -107,17 +101,16 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
           val pl = PlayList(musicRecItems.map(_.fullPath).toList)
           val selectedFilename = file.getAbsolutePath
           val filename = if(selectedFilename.endsWith(playlistExt)) selectedFilename else selectedFilename + "." + playlistExt
-          val plFile = PlayListFile(filename,pl)
+          val plFile = PlayListFile(filename, pl)
           PlayListManager.saveInSettings(plFile)
         }
       }
     }
 
-
     val menu:ContextMenu = new ContextMenu {
-      style = "-fx-background-radius: 10 0 10 10; -fx-border-color: white; -fx-border-radius: 10 0 10 10;"
-      autoHide  = true
-      items ++= List(addFileMenuItem,openPlaylistMenuItem,savePlaylistMenuItem)
+      styleClass ++= Seq("file-menu")
+      autoHide = true
+      items ++= Seq(addFileMenuItem, openPlaylistMenuItem, savePlaylistMenuItem)
     }
 
     menu

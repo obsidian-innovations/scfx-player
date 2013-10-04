@@ -20,6 +20,20 @@
     -fx-focus-color: green;
 }*/
 
+.file-menu {
+    -fx-background-radius: 0 10 10 10;
+    -fx-border-radius: 0 10 10 10;
+    -fx-border-color: white;
+    -fx-accent: lightblue;
+}
+
+.settings-menu {
+    -fx-background-radius: 10 0 10 10;
+    -fx-border-radius: 10 0 10 10;
+    -fx-border-color: white;
+    -fx-accent: lightblue;
+}
+
 .time-left-text-indicator {
     -fx-font-size: 10;
     -fx-fill: dimgray;

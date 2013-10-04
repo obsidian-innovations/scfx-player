@@ -79,9 +79,9 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
   initPlaylistMenuItem(artistMenuItem, artistColumn)
 
   val playListSettingsMnu:ContextMenu = new ContextMenu {
-    style = "-fx-background-radius: 10 0 10 10; -fx-border-color: white; -fx-border-radius: 10 0 10 10;"
+    styleClass ++= Seq("settings-menu")
     autoHide  = true
-    items ++= List(durationMenuItem, trackMenuItem, albumMenuItem, artistMenuItem)
+    items ++= Seq(durationMenuItem, trackMenuItem, albumMenuItem, artistMenuItem)
   }
 
   def initPlaylistMenuItem(i:CheckMenuItem, c:TableColumn[_,_]):Unit = {
