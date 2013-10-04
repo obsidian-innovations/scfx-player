@@ -20,6 +20,36 @@
     -fx-focus-color: green;
 }*/
 
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 10;
+}
+
+.table-view .column-header {
+    -fx-border-width: 0 1 0 0;
+    -fx-border-color: lightgray;
+}
+
+.table-row-cell {
+    -fx-background-color: ghostwhite;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: lavender;
+}
+
+.table-row-cell:selected .table-cell {
+    -fx-background-color: cadetblue;
+    -fx-text-fill: white;
+}
+
+.table-cell {
+    -fx-text-fill: black;
+    -fx-border-width: 0;
+    -fx-font-size: 12;
+}
+
 .file-menu {
     -fx-background-radius: 0 10 10 10;
     -fx-border-radius: 0 10 10 10;
