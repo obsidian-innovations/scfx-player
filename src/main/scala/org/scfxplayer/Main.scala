@@ -138,6 +138,18 @@ object Main extends JFXApp {
     content = Seq(mainControlsLayout, musicRecTable)
   }
 
+  plMgr.currentPlayListName.onChange {
+    (_, changes) => {
+      for (change <- changes) change match {
+        case ObservableBuffer.Add(position, els) => {
+          stage.title = s"Demo ScalaFX Player - ${els.headOption.map(_.toString).getOrElse("")}"
+        }
+
+        case _ => {}
+      }
+    }
+  }
+
   stage = new PrimaryStage {
     title = "Demo ScalaFX Player"
     icons ++= Seq(new Image(getClass.getResource("/app-icon-32.png").toExternalForm))

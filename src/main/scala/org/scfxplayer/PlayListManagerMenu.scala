@@ -38,7 +38,7 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
 
   private val logger = LoggerFactory.getLogger(this.getClass);
 
-  val currentPlayListName = StringProperty("")
+  val currentPlayListName = ObservableBuffer[String]()
 
   import scalafx.Includes._
 
@@ -58,7 +58,7 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
     if(!pl.files.isEmpty) {
       logger.info("clearing the items in the player")
       musicRecItems.clear()
-      this.currentPlayListName.value = loc
+      this.currentPlayListName += loc
     }
     loadFiles(pl.files.map(new java.io.File(_)))
   }
@@ -66,7 +66,7 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
   def loadDefaultPlaylist():Unit = {
     logger.info("loading the currently selected playlist - in settings")
     PlayListManager.openFromSettings().map{ case PlayListFile(loc,playlist) =>
-      this.currentPlayListName.value = loc
+      this.currentPlayListName  += loc
       loadFiles(playlist.files.map(new java.io.File(_)))
     }
   }
