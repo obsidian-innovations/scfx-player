@@ -164,7 +164,8 @@ object Main extends JFXApp {
       content = mainLayout
       onCloseRequest = (event:WindowEvent) => {
         playerControls.stop()
-        plMgr.saveCurrentPlaylist()
+        //plMgr.saveCurrentPlaylist()
+        plMgr.shutdown()
       }
       onShowing = (event:WindowEvent) => { plMgr.loadDefaultPlaylist() }
     }
