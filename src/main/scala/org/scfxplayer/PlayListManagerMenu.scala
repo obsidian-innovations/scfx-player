@@ -50,6 +50,8 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
       val item = new MusicRecordItem(md.artist, md.album, md.track, md.duration, f.getName, f.getAbsolutePath)
       if(!musicRecItems.map(_.fullPath).contains(item.fullPath)) { musicRecItems += item }
     }}}
+    val pl = PlayList(musicRecItems.map(_.fullPath).toList)
+    PlayListManager.saveCurrent(pl)
   }
 
   def loadPlayList(plf:PlayListFile):Unit = {

@@ -164,8 +164,6 @@ object Main extends JFXApp {
       content = mainLayout
       onCloseRequest = (event:WindowEvent) => {
         playerControls.stop()
-        val pl = PlayList(musicRecItems.map(_.fullPath).toList)
-        PlayListManager.saveCurrent(pl)
       }
       onShowing = (event:WindowEvent) => { plMgr.loadDefaultPlaylist() }
     }
