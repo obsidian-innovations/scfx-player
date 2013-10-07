@@ -34,7 +34,7 @@ object FileChoosers {
   plsaver.setInitialDirectory(new File(System.getProperty("user.home")))
 }
 
-class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) {
+class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) { mgr =>
 
   private val logger = LoggerFactory.getLogger(this.getClass);
 
@@ -107,6 +107,7 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
           val plFile = PlayListFile(filename, pl)
           logger.info(s"saving playlist $plFile")
           PlayListManager.saveInSettings(plFile)
+          mgr.currentPlayListName += filename
         }
       }
     }
