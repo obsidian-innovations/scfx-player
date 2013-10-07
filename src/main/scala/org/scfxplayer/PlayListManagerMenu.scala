@@ -11,6 +11,7 @@ import java.io.File
 import scalafx.scene.Parent
 import scalafx.event.ActionEvent
 import org.slf4j.LoggerFactory
+import scalafx.beans.property.StringProperty
 
 object FileChoosers {
   val fchooser:FileChooser = new FileChooser()
@@ -37,6 +38,7 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
 
   private val logger = LoggerFactory.getLogger(this.getClass);
 
+  val currentPlayListName = StringProperty("")
 
   import scalafx.Includes._
 
@@ -50,18 +52,21 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
     }}}
   }
 
-  def loadPlayList(pl:PlayList):Unit = {
+  def loadPlayList(plf:PlayListFile):Unit = {
+    val PlayListFile(loc,pl) = plf
     logger.info(s"loading playlist: ${pl.files}")
     if(!pl.files.isEmpty) {
       logger.info("clearing the items in the player")
       musicRecItems.clear()
+      this.currentPlayListName.value = loc
     }
     loadFiles(pl.files.map(new java.io.File(_)))
   }
 
   def loadDefaultPlaylist():Unit = {
     logger.info("loading the currently selected playlist - in settings")
-    PlayListManager.openFromSettings().map{ playlist =>
+    PlayListManager.openFromSettings().map{ case PlayListFile(loc,playlist) =>
+      this.currentPlayListName.value = loc
       loadFiles(playlist.files.map(new java.io.File(_)))
     }
   }
@@ -84,7 +89,7 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
         logger.info("open playlist menu item")
         Try(plchooser.showOpenDialog(parent.getScene.getWindow)).map { file =>
           PlayListManager.open[PlayList](file.getAbsolutePath).map { pl =>
-            loadPlayList(pl)
+            loadPlayList(PlayListFile(file.getAbsolutePath,pl))
             PlayListManager.saveInSettings(PlayListFile(file.getAbsolutePath,pl))
           }
         }

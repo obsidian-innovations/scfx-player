@@ -189,11 +189,13 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
   }
 
   private def scheduleNextPlay(played:MusicRecordItem) {
-    play(items.dropWhile {_.fullPath != played.fullPath}.drop(1).headOption)
+    if(items.lastOption.exists(_.fullPath == played.fullPath)) play(items.headOption)
+    else play(items.dropWhile {_.fullPath != played.fullPath}.drop(1).headOption)
   }
 
   private def schedulePrevPlay(played:MusicRecordItem) {
-    play(items.reverse.dropWhile {_.fullPath != played.fullPath}.drop(1).headOption)
+    if(items.headOption.exists(_.fullPath == played.fullPath)) play(items.lastOption)
+    else play(items.reverse.dropWhile {_.fullPath != played.fullPath}.drop(1).headOption)
   }
 
   private def isPlaying(p:MediaPlayer) = p.status.value.toString == MediaPlayer.Status.PLAYING.toString()

@@ -15,29 +15,29 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
   import scalafx.Includes._
 
   def attachDnDToColumn(column:TableColumn[MusicRecordItem, String]):TableColumn[MusicRecordItem, String] = {
-    val oldFactory = column.delegate.cellFactoryProperty().getValue()
-    column.cellFactory = f => {
-      val res:TableCell[MusicRecordItem,String] = oldFactory.call(f)
-      res.onDragDropped = (event:DragEvent) => {
-        event.consume()
-        val db = event.getDragboard()
-        val success = if (event.getDragboard().hasString()) {
-          val droppedIdx = musicRecItems.indexWhere(_.fullPath == db.getString())
-          val targetIdx = res.tableRow.value.indexProperty().getValue
-          musicRecItems.find(_.fullPath == db.getString() && droppedIdx > -1 && targetIdx > -1).map { x =>
-            val newTrgtIdx:Int = if(targetIdx > droppedIdx) targetIdx + 1 else targetIdx
-            musicRecItems.insert(newTrgtIdx, x)
-            musicRecItems.remove(if(targetIdx > droppedIdx) droppedIdx else droppedIdx + 1)
-            column.getTableView.selectionModel.value.clearSelection()
-            column.getTableView.selectionModel.value.select(targetIdx)
-          }
-          db.clear()
-          true
-        } else false
-        event.setDropCompleted(success)
-      }
-      res
-    }
+//    val oldFactory = column.delegate.cellFactoryProperty().getValue()
+//    column.cellFactory = f => {
+//      val res:TableCell[MusicRecordItem,String] = oldFactory.call(f)
+//      res.onDragDropped = (event:DragEvent) => {
+//        event.consume()
+//        val db = event.getDragboard()
+//        val success = if (event.getDragboard().hasString()) {
+//          val droppedIdx = musicRecItems.indexWhere(_.fullPath == db.getString())
+//          val targetIdx = res.tableRow.value.indexProperty().getValue
+//          musicRecItems.find(_.fullPath == db.getString() && droppedIdx > -1 && targetIdx > -1).map { x =>
+//            val newTrgtIdx:Int = if(targetIdx > droppedIdx) targetIdx + 1 else targetIdx
+//            musicRecItems.insert(newTrgtIdx, x)
+//            musicRecItems.remove(if(targetIdx > droppedIdx) droppedIdx else droppedIdx + 1)
+//            column.getTableView.selectionModel.value.clearSelection()
+//            column.getTableView.selectionModel.value.select(targetIdx)
+//          }
+//          db.clear()
+//          true
+//        } else false
+//        event.setDropCompleted(success)
+//      }
+//      res
+//    }
     column
   }
 
