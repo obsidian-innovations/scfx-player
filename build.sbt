@@ -21,8 +21,9 @@ libraryDependencies ++= Seq(
                             "org.joda" % "joda-convert" % "1.4",
                             "play" %% "play-json" % "2.2-SNAPSHOT",
                             "commons-codec" % "commons-codec" % "1.8",
-//to be removed
-//                            "org" % "jaudiotagger" % "2.0.3",
+                            "ch.qos.logback" % "logback-classic" % "1.0.13",
+                            "ch.qos.logback" % "logback-core" % "1.0.13",
+                            "org.slf4j" % "slf4j-api" % "1.7.5",
 // current stuff
                              "org.scalafx" % "scalafx_2.10" % "1.0.0-M5"
 // new stuff

@@ -10,6 +10,7 @@ import scalafx.stage.{Window, FileChooser}
 import java.io.File
 import scalafx.scene.Parent
 import scalafx.event.ActionEvent
+import org.slf4j.LoggerFactory
 
 object FileChoosers {
   val fchooser:FileChooser = new FileChooser()
@@ -34,11 +35,15 @@ object FileChoosers {
 
 class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) {
 
+  private val logger = LoggerFactory.getLogger(this.getClass);
+
+
   import scalafx.Includes._
 
   import FileChoosers._
 
   def loadFiles(fs:Seq[java.io.File]) = {
+    logger.info(s"loading the following files \n${fs.map(_.getAbsolutePath).mkString("\n")}")
     fs.foreach { f => TrackMetaData(f) { mdTry => mdTry.foreach{ md =>
       val item = new MusicRecordItem(md.artist, md.album, md.track, md.duration, f.getName, f.getAbsolutePath)
       if(!musicRecItems.map(_.fullPath).contains(item.fullPath)) { musicRecItems += item }
@@ -46,11 +51,16 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
   }
 
   def loadPlayList(pl:PlayList):Unit = {
-    if(!pl.files.isEmpty) musicRecItems.clear()
+    logger.info(s"loading playlist: ${pl.files}")
+    if(!pl.files.isEmpty) {
+      logger.info("clearing the items in the player")
+      musicRecItems.clear()
+    }
     loadFiles(pl.files.map(new java.io.File(_)))
   }
 
   def loadDefaultPlaylist():Unit = {
+    logger.info("loading the currently selected playlist - in settings")
     PlayListManager.openFromSettings().map{ playlist =>
       loadFiles(playlist.files.map(new java.io.File(_)))
     }
@@ -58,24 +68,10 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
 
   def menu(parent:Parent) = {
 
-//    val openFilesBtn = new Button {
-//      styleClass ++= List("player-button", "button-eject")
-//      text = "Add Files"
-//      prefWidth = 150
-//      prefHeight = 24
-//      onMouseClicked = new EventHandler[MouseEvent] {
-//        override def handle(event:MouseEvent) {
-//          event.consume()
-//          Try(fchooser.showOpenMultipleDialog(parent.value.getScene.getWindow)).map { fs =>
-//            loadFiles(fs)
-//          }
-//        }
-//      }
-//    }
-
     val addFileMenuItem = new MenuItem("Add Files") {
       onAction = (event: ActionEvent) => {
         event.consume()
+        logger.info("adding files menu item")
         Try(fchooser.showOpenMultipleDialog(parent.getScene.getWindow)).map { fs =>
           loadFiles(fs)
         }
@@ -85,6 +81,7 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
     val openPlaylistMenuItem = new MenuItem("Open playlist") {
       onAction = (event: ActionEvent) => {
         event.consume()
+        logger.info("open playlist menu item")
         Try(plchooser.showOpenDialog(parent.getScene.getWindow)).map { file =>
           PlayListManager.open[PlayList](file.getAbsolutePath).map { pl =>
             loadPlayList(pl)
@@ -96,12 +93,14 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
 
     val savePlaylistMenuItem = new MenuItem("Save playlist") {
       onAction = (event: ActionEvent) => {
+        logger.info("save playlist menu item")
         event.consume()
         Try(plsaver.showSaveDialog(parent.getScene.getWindow)).map { file =>
           val pl = PlayList(musicRecItems.map(_.fullPath).toList)
           val selectedFilename = file.getAbsolutePath
           val filename = if(selectedFilename.endsWith(playlistExt)) selectedFilename else selectedFilename + "." + playlistExt
           val plFile = PlayListFile(filename, pl)
+          logger.info(s"saving playlist $plFile")
           PlayListManager.saveInSettings(plFile)
         }
       }
