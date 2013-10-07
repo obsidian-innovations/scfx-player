@@ -50,8 +50,6 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
       val item = new MusicRecordItem(md.artist, md.album, md.track, md.duration, f.getName, f.getAbsolutePath)
       if(!musicRecItems.map(_.fullPath).contains(item.fullPath)) { musicRecItems += item }
     }}}
-    val pl = PlayList(musicRecItems.map(_.fullPath).toList)
-    PlayListManager.saveCurrent(pl)
   }
 
   def loadPlayList(plf:PlayListFile):Unit = {
@@ -73,6 +71,11 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
     }
   }
 
+  def saveCurrentPlaylist() = {
+    val pl = PlayList(musicRecItems.map(_.fullPath).toList)
+    PlayListManager.saveCurrent(pl)
+  }
+
   def menu(parent:Parent) = {
 
     val addFileMenuItem = new MenuItem("Add Files") {
@@ -91,6 +94,7 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
         logger.info("open playlist menu item")
         Try(plchooser.showOpenDialog(parent.getScene.getWindow)).map { file =>
           PlayListManager.open[PlayList](file.getAbsolutePath).map { pl =>
+            saveCurrentPlaylist()
             loadPlayList(PlayListFile(file.getAbsolutePath,pl))
             PlayListManager.saveInSettings(PlayListFile(file.getAbsolutePath,pl))
           }
