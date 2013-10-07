@@ -11,9 +11,7 @@ import java.io.File
 import scalafx.scene.Parent
 import scalafx.event.ActionEvent
 import org.slf4j.LoggerFactory
-import scalafx.beans.property.StringProperty
-import org.scfxplayer.async.{Processed, AddFilesActor}
-import akka.actor.Props
+import java.util.concurrent.atomic.AtomicInteger
 
 object FileChoosers {
   val fchooser:FileChooser = new FileChooser()
@@ -46,19 +44,22 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
 
   import FileChoosers._
 
-  private val asystem = akka.actor.ActorSystem("scfx")
 
-  def loadFiles(fs:Seq[java.io.File]) = {
-    val actor = asystem.actorOf(Props(new AddFilesActor(fs,this)))
-
-    logger.info(s"loading the following files \n${fs.map(_.getAbsolutePath).mkString("\n")}")
-    fs.foreach { f => TrackMetaData(f) { mdTry => mdTry.foreach{ md =>
-      val item = new MusicRecordItem(md.artist, md.album, md.track, md.duration, f.getName, f.getAbsolutePath)
-      if(!musicRecItems.map(_.fullPath).contains(item.fullPath)) {
-        musicRecItems += item
-        actor ! Processed
-      }
-    }}}
+  def loadFiles(rawFiles:Seq[java.io.File]) = {
+    val fs = rawFiles.filter(_.exists).map(_.getAbsolutePath).distinct
+    val counter = new AtomicInteger(fs.size)
+    logger.info(s"loading the following files \n${fs.mkString("\n")}")
+    fs.foreach { fpath => {
+      val f = new File(fpath)
+      TrackMetaData(f) { mdTry => mdTry.foreach{ md =>
+        val item = new MusicRecordItem(md.artist, md.album, md.track, md.duration, f.getName, f.getAbsolutePath)
+        if(!musicRecItems.map(_.fullPath).contains(item.fullPath)) {
+          musicRecItems += item
+          val currCounter = counter.decrementAndGet()
+          if(currCounter <= 0) saveCurrentPlaylist()
+        }
+      }}
+    }}
   }
 
   def loadPlayList(plf:PlayListFile):Unit = {
@@ -135,7 +136,4 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
     menu
   }
 
-  def shutdown() = {
-    asystem.shutdown()
-  }
 }
