@@ -150,10 +150,10 @@ object Main extends JFXApp {
     }
   }
 
-  def onWidthUpdated(oldWidth:Double, newWidth:Double) = {
-    musicRecTable.columns.foreach { c =>
-      if(oldWidth >= 1.0) c.setPrefWidth(Try(c.getWidth * newWidth / oldWidth).getOrElse(0.0))
-    }
+  def onWidthUpdated(oldw:Double, neww:Double) = {
+    val oldWidth = math.max(oldw, stage.minWidth)
+    val newWidth =math.max(neww, stage.minWidth)
+    musicRecTable.columns.foreach(c => c.setPrefWidth(Try(c.getWidth * newWidth / oldWidth).getOrElse(0.0)))
   }
 
   stage = new PrimaryStage {
