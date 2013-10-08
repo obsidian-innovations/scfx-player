@@ -6,7 +6,6 @@ import scalafx.collections.ObservableBuffer
 import scalafx.scene.input.{DragEvent, MouseEvent}
 import javafx.scene.input.{ClipboardContent, TransferMode}
 import javafx.scene.control.CheckMenuItem
-import javafx.scene.{ control => jfxsc }
 import javafx.event.EventHandler
 
 //http://blog.ngopal.com.np/2012/05/06/javafx-drag-and-drop-cell-in-listview/
@@ -15,6 +14,16 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
   import scalafx.Includes._
 
   def attachDnDToColumn(column:TableColumn[MusicRecordItem, String]):TableColumn[MusicRecordItem, String] = {
+    val oldFactory = column.delegate.cellFactoryProperty().getValue()
+    column.cellFactory = f => {
+      val cell:TableCell[MusicRecordItem,String] = oldFactory.call(f)
+      cell.tableRow onChange {
+        musicRecItems.lift(cell.tableRow.value.indexProperty.getValue).foreach { i =>
+          cell.style <== when (i.playingNow) choose "-fx-font-weight: bold; -fx-text-fill: slateblue;" otherwise ""
+        }
+      }
+      cell
+    }
 //    val oldFactory = column.delegate.cellFactoryProperty().getValue()
 //    column.cellFactory = f => {
 //      val res:TableCell[MusicRecordItem,String] = oldFactory.call(f)

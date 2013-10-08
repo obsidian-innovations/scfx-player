@@ -40,12 +40,12 @@
 }
 
 .table-row-cell:selected .table-cell {
-    -fx-background-color: cadetblue;
+    -fx-background-color: lightsteelblue;
     -fx-text-fill: white;
 }
 
 .table-cell {
-    -fx-text-fill: black;
+    -fx-text-fill: dimgray;
     -fx-border-width: 0;
     -fx-font-size: 12;
 }

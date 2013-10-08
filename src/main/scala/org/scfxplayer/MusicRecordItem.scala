@@ -1,6 +1,6 @@
 package org.scfxplayer
 
-import scalafx.beans.property.StringProperty
+import scalafx.beans.property.{BooleanProperty, StringProperty}
 import org.joda.time.Duration
 
 case class MusicRecordItem(artist_ : Option[String],
@@ -15,11 +15,11 @@ case class MusicRecordItem(artist_ : Option[String],
   val fileName = new StringProperty(this, "fileName", fileName_)
   val trackNameMade = new StringProperty(this, "trackNameMade", track_.getOrElse(cutExt(fileName_)))
   val duration = new StringProperty(this, "duration", PlayerUtils.durationToString(duration_))
+  val playingNow = new BooleanProperty(this, "playingNow")
 
   private var markedDeleted_ = false
   def markDeleted { markedDeleted_ = true }
   def isMarkedDeleted = markedDeleted_
 
   private def cutExt(s:String) = s.reverse.dropWhile(_ != '.').drop(1).reverse.toString
-
 }

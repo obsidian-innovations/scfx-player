@@ -154,6 +154,7 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
   private def initState() {
     player_().foreach(_.stop())
     player_ = () => None
+    playing_().foreach(_.playingNow.value = false)
     playing_ = () => None
     timePosSlider.value onChange {}
     playBtn.onMouseClicked = onPlayClickedInit()_
@@ -178,6 +179,7 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
       } yield {
         player_ = () => Some(mplayer)
         playing_ = () => Some(r)
+        playing_().foreach(_.playingNow.value = true)
         mplayer.onReady = onPlayerReady(mplayer)
         mplayer.onEndOfMedia = scheduleNextPlay(r)
         mplayer.onError = scheduleNextPlay(r)
