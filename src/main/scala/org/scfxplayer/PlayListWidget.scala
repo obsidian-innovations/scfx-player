@@ -52,28 +52,28 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
 
   val durationColumn = attachDnDToColumn(new TableColumn[MusicRecordItem, String]() {
     text = "Duration"
-    prefWidth = 80
+    prefWidth = 50
     minWidth = 50
     cellValueFactory = {_.value.duration}
   })
 
   val trackColumn = attachDnDToColumn(new TableColumn[MusicRecordItem, String] {
     text = "Track"
-    prefWidth = 300
+    prefWidth = 230
     minWidth = 50
     cellValueFactory = {_.value.trackNameMade}
   })
 
   val albumColumn = attachDnDToColumn(new TableColumn[MusicRecordItem, String]() {
     text = "Album"
-    prefWidth = 120
+    prefWidth = 58
     minWidth = 50
     cellValueFactory = {_.value.album}
   })
 
   val artistColumn = attachDnDToColumn(new TableColumn[MusicRecordItem, String]() {
     text = "Artist"
-    prefWidth = 120
+    prefWidth = 58
     minWidth = 50
     cellValueFactory = {_.value.artist}
   })
