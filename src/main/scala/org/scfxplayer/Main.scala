@@ -78,7 +78,7 @@ object Main extends JFXApp {
       override def handle(event:MouseEvent) {
         event.consume()
         val smodel = musicRecTable.selectionModel.value
-        smodel.getSelectedIndices.toList.sortWith((x, y) => x > y).foreach { x =>
+        smodel.getSelectedIndices.toList.distinct.sortWith((x, y) => x > y).foreach { x =>
           musicRecItems.lift(x).foreach(_.markDeleted)
           musicRecItems.remove(x)
         }
