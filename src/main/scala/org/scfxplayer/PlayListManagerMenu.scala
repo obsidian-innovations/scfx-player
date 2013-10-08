@@ -88,10 +88,17 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
 
   def menu(parent:Parent) = {
 
+    val ctxMenu:ContextMenu = new ContextMenu {
+      styleClass ++= Seq("file-menu")
+      autoHide = true
+      items ++= Seq()
+    }
+    
     val addFileMenuItem = new MenuItem("Add Files") {
       onAction = (event: ActionEvent) => {
         event.consume()
         logger.info("adding files menu item")
+        ctxMenu.hide()
         Try(fchooser.showOpenMultipleDialog(parent.getScene.getWindow)).map { fs =>
           loadFiles(fs)
         }
@@ -102,6 +109,7 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
       onAction = (event: ActionEvent) => {
         event.consume()
         logger.info("open playlist menu item")
+        ctxMenu.hide()
         Try(plchooser.showOpenDialog(parent.getScene.getWindow)).map { file =>
           PlayListManager.open[PlayList](file.getAbsolutePath).map { pl =>
             loadPlayList(PlayListFile(file.getAbsolutePath,pl))
@@ -115,6 +123,7 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
       onAction = (event: ActionEvent) => {
         logger.info("save playlist menu item")
         event.consume()
+        ctxMenu.hide()
         Try(plsaver.showSaveDialog(parent.getScene.getWindow)).map { file =>
           val pl = PlayList(musicRecItems.map(_.fullPath).toList)
           val selectedFilename = file.getAbsolutePath
@@ -127,13 +136,9 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
       }
     }
 
-    val menu:ContextMenu = new ContextMenu {
-      styleClass ++= Seq("file-menu")
-      autoHide = true
-      items ++= Seq(addFileMenuItem, openPlaylistMenuItem, savePlaylistMenuItem)
-    }
+    ctxMenu.items ++= Seq(addFileMenuItem, openPlaylistMenuItem, savePlaylistMenuItem)
 
-    menu
+    ctxMenu
   }
 
 }
