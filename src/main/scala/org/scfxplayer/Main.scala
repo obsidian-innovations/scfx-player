@@ -6,7 +6,7 @@ import javafx.scene.input.MouseEvent
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.Scene
-import scalafx.stage.{FileChooser, WindowEvent}
+import scalafx.stage.WindowEvent
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
 import scalafx.scene.layout._
@@ -150,6 +150,12 @@ object Main extends JFXApp {
     }
   }
 
+  def onWidthUpdated(oldWidth:Double, newWidth:Double) = {
+    musicRecTable.columns.foreach { c =>
+      if(oldWidth >= 1.0) c.setPrefWidth(Try(c.getWidth * newWidth / oldWidth).getOrElse(0))
+    }
+  }
+
   stage = new PrimaryStage {
     title = "Demo ScalaFX Player"
     icons ++= Seq(new Image(getClass.getResource("/app-icon-32.png").toExternalForm))
@@ -159,7 +165,12 @@ object Main extends JFXApp {
     height = 480
     scene = new Scene {
       stylesheets ++= List("default-skin.css")
-      width onChange {mainLayout.setPrefWidth(scene.value.getWidth);}
+      width onChange {
+        (s, oldval, newval) => {
+          mainLayout.setPrefWidth(scene.value.getWidth)
+          onWidthUpdated(oldval.doubleValue, newval.doubleValue)
+        }
+      }
       height onChange {mainLayout.setPrefHeight(scene.value.getHeight);}
       content = mainLayout
       onCloseRequest = (event:WindowEvent) => {
