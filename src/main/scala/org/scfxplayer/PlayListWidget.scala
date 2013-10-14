@@ -3,50 +3,104 @@ package org.scfxplayer
 import scalafx.scene.control._
 import scalafx.scene.layout.Priority
 import scalafx.collections.ObservableBuffer
-import scalafx.scene.input.{DragEvent, MouseEvent}
+import scalafx.scene.input.{DataFormat, DragEvent, MouseEvent}
 import javafx.scene.input.{ClipboardContent, TransferMode}
 import javafx.scene.control.CheckMenuItem
 import javafx.event.EventHandler
+import scalafx.scene.{SnapshotParameters, ImageCursor, Cursor, Node}
+import com.sun.javafx.scene.control.skin.{LabelSkin, SkinBase}
+import scalafx.scene.paint.Color
+import scalafx.scene.text.Text
+import scala.util.Try
 
 //http://blog.ngopal.com.np/2012/05/06/javafx-drag-and-drop-cell-in-listview/
 
 class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
   import scalafx.Includes._
 
-  def attachDnDToColumn(column:TableColumn[MusicRecordItem, String]):TableColumn[MusicRecordItem, String] = {
+  private def rebindCellStyle(cell:TableCell[MusicRecordItem,String]):Unit = {
+    for(
+      i <- Try(cell.tableRow.value.getItem.asInstanceOf[MusicRecordItem]).filter(_ != null)
+    ) {
+//      println("## row number " + cell.tableRow.value.indexProperty().get + " / " + i.trackNameMade.value)
+      cell.style.unbind()
+      cell.style <== when (i.playingNow) choose {
+        "-fx-font-weight: bold; -fx-text-fill: slateblue;"
+      } otherwise {
+        ""
+      }
+    }
+  }
+
+  private def setOnPlayingItem(cell:TableCell[MusicRecordItem,String]):Unit = {
+    cell.tableRow onChange {
+      (x, oldtab, newtab) => {
+        rebindCellStyle(cell)
+        cell.tableRow.value.item onChange {
+          (x, olditem, newitem) => {
+            rebindCellStyle(cell)
+          }
+        }
+      }
+    }
+  }
+
+  private def setOnDragDropped(cell:TableCell[MusicRecordItem,String], column:TableColumn[MusicRecordItem, String]):Unit = {
+    cell.onDragDropped = (event:DragEvent) => {
+      event.consume()
+      val db = event.getDragboard()
+      if(event.getSource != cell && event.getDragboard().hasString()) {
+        val droppedIdx = musicRecItems.indexWhere(_.fullPath == db.getString())
+        val targetIdx = cell.tableRow.value.indexProperty().getValue
+        musicRecItems.find(_.fullPath == db.getString() && droppedIdx > -1 && targetIdx > -1).map { x =>
+          val newTrgtIdx:Int = if(targetIdx > droppedIdx) targetIdx + 1 else targetIdx
+          musicRecItems.insert(newTrgtIdx, x)
+          musicRecItems.remove(if(targetIdx > droppedIdx) droppedIdx else droppedIdx + 1)
+          column.getTableView.selectionModel.value.clearSelection()
+          column.getTableView.selectionModel.value.select(targetIdx)
+        }
+        db.clear()
+      }
+      event.setDropCompleted(true)
+    }
+
+    cell.onDragDetected = (event:MouseEvent) => {
+      event.consume()
+      val db = cell.startDragAndDrop(TransferMode.MOVE)
+      val content = new ClipboardContent()
+      content.putString(cell.tableRow.value.getItem.asInstanceOf[MusicRecordItem].fullPath)
+      db.setContent(content)
+    }
+
+    cell.onDragOver = (event:DragEvent) => {
+      event.consume()
+      if(event.getGestureSource != cell && event.getDragboard().hasString()) {
+        event.acceptTransferModes(TransferMode.MOVE)
+      }
+    }
+
+    cell.onDragEntered = (event:DragEvent) => {
+      event.consume()
+      if(event.getGestureSource() != cell && event.getDragboard().hasString()) {
+        cell.tableRow.value.setOpacity(0.7)
+      }
+    }
+
+    cell.onDragExited = (event:DragEvent) => {
+      event.consume()
+      cell.tableRow.value.setOpacity(1.0)
+    }
+
+  }
+
+  private def attachDnDToColumn(column:TableColumn[MusicRecordItem, String]):TableColumn[MusicRecordItem, String] = {
     val oldFactory = column.delegate.cellFactoryProperty().getValue()
     column.cellFactory = f => {
       val cell:TableCell[MusicRecordItem,String] = oldFactory.call(f)
-      cell.tableRow onChange {
-        musicRecItems.lift(cell.tableRow.value.indexProperty.getValue).foreach { i =>
-          cell.style <== when (i.playingNow) choose "-fx-font-weight: bold; -fx-text-fill: slateblue;" otherwise ""
-        }
-      }
+      setOnDragDropped(cell, column)
+      setOnPlayingItem(cell)
       cell
     }
-//    val oldFactory = column.delegate.cellFactoryProperty().getValue()
-//    column.cellFactory = f => {
-//      val res:TableCell[MusicRecordItem,String] = oldFactory.call(f)
-//      res.onDragDropped = (event:DragEvent) => {
-//        event.consume()
-//        val db = event.getDragboard()
-//        val success = if (event.getDragboard().hasString()) {
-//          val droppedIdx = musicRecItems.indexWhere(_.fullPath == db.getString())
-//          val targetIdx = res.tableRow.value.indexProperty().getValue
-//          musicRecItems.find(_.fullPath == db.getString() && droppedIdx > -1 && targetIdx > -1).map { x =>
-//            val newTrgtIdx:Int = if(targetIdx > droppedIdx) targetIdx + 1 else targetIdx
-//            musicRecItems.insert(newTrgtIdx, x)
-//            musicRecItems.remove(if(targetIdx > droppedIdx) droppedIdx else droppedIdx + 1)
-//            column.getTableView.selectionModel.value.clearSelection()
-//            column.getTableView.selectionModel.value.select(targetIdx)
-//          }
-//          db.clear()
-//          true
-//        } else false
-//        event.setDropCompleted(success)
-//      }
-//      res
-//    }
     column
   }
 
@@ -104,38 +158,6 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
       })
   }
 
-  private def isColumn(target: javafx.event.EventTarget):Boolean =
-    target.isInstanceOf[com.sun.javafx.scene.control.skin.LabelSkin]
-
-  private def isRow(target: javafx.event.EventTarget):Boolean = !isColumn(target)
-
-  //https://forums.oracle.com/thread/2413845
-  def setupDragAndDrop(tableView:TableView[MusicRecordItem]):TableView[MusicRecordItem] = {
-
-    tableView.onDragDetected =  (event:MouseEvent) => {
-      if(isRow(event.getTarget)){
-        val selected = tableView.getSelectionModel().getSelectedItem();
-        if(selected !=null){
-          val db = tableView.startDragAndDrop(TransferMode.LINK)
-          val content = new ClipboardContent();
-          content.putString(selected.fullPath);
-          db.setContent(content);
-      }
-    }}
-
-    tableView.onDragOver =  (event:DragEvent) => {
-      if(isRow(event.getTarget)){
-        event.consume()
-        val db = event.getDragboard()
-        if (event.getDragboard().hasString()) {
-          event.acceptTransferModes(TransferMode.LINK)
-        }
-      }
-    }
-
-    tableView
-  }
-
   def tableView(onItemDblClicked: MusicRecordItem => Unit):TableView[MusicRecordItem] = {
     val table = new TableView[MusicRecordItem](musicRecItems) {
       vgrow = Priority.ALWAYS
@@ -147,7 +169,6 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
       if(event.getClickCount() == 2)
         Option(table.getSelectionModel().getSelectedItem()).map(onItemDblClicked(_))
     }
-    //setupDragAndDrop(table, onItemDblClicked)
     table
   }
 }
