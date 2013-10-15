@@ -38,15 +38,25 @@ object PlayListManager extends PlayerFiles {
   def openDefault(implicit fileHandling:FileHandling = JvmFileHandling):Try[PlayList] =
     defaultLocation(defaultPlaylistName).flatMap(loc => open[PlayList](loc))
 
+
+
+
+
   def openFromSettings(implicit fileHandling:FileHandling = JvmFileHandling):Try[PlayListFile] = for {
-    settings <- Settings.openOrDefault
-    loc <- location(settings.playlistLocation) match {
-      case l@Success(_) => l
-      case f@Failure(_) => {
+    settings <- Settings.open.transform(
+     s => Success(s),
+     f => {
+       Settings.default.map(Settings.save(_))
+       Settings.default
+     }
+    )
+    loc <- location(settings.playlistLocation).transform(
+      s => Success(s),
+      f => {
         Settings.default.map(Settings.save(_))
         PlayListFile.defaultLoc
       }
-    }
+    )
     playlist <- open[PlayList](loc)
   } yield PlayListFile(loc,playlist)
 

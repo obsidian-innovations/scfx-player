@@ -1,4 +1,4 @@
-package org.scfxplayer
+package org.scfxplayer.controller
 
 import javafx.scene.control.{CustomMenuItem, CheckMenuItem}
 import scalafx.scene.control.{MenuItem, Button, ContextMenu}
@@ -12,6 +12,10 @@ import scalafx.scene.Parent
 import scalafx.event.ActionEvent
 import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicInteger
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import org.scfxplayer._
+import org.scfxplayer.MusicRecordItem
 
 object FileChoosers {
   val fchooser:FileChooser = new FileChooser()
@@ -34,7 +38,7 @@ object FileChoosers {
   plsaver.setInitialDirectory(new File(System.getProperty("user.home")))
 }
 
-class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) { mgr =>
+class PlayListController(val musicRecItems: ObservableBuffer[MusicRecordItem]) { mgr =>
 
   private val logger = LoggerFactory.getLogger(this.getClass);
 
@@ -81,7 +85,7 @@ class PlayListManagerMenu(val musicRecItems: ObservableBuffer[MusicRecordItem]) 
     }
   }
 
-  def saveCurrentPlaylist() = {
+  def saveCurrentPlaylist() = Future {
     val pl = PlayList(musicRecItems.map(_.fullPath).toList)
     PlayListManager.saveCurrent(pl)
   }

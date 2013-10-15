@@ -12,10 +12,11 @@ import com.sun.javafx.scene.control.skin.{LabelSkin, SkinBase}
 import scalafx.scene.paint.Color
 import scalafx.scene.text.Text
 import scala.util.Try
+import org.scfxplayer.controller.PlayListController
 
 //http://blog.ngopal.com.np/2012/05/06/javafx-drag-and-drop-cell-in-listview/
 
-class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
+class PlayListWidget(val pmgr:PlayListController) {
   import scalafx.Includes._
 
   private def rebindCellStyle(cell:TableCell[MusicRecordItem,String]):Unit = {
@@ -50,14 +51,15 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
       event.consume()
       val db = event.getDragboard()
       if(event.getSource != cell && event.getDragboard().hasString()) {
-        val droppedIdx = musicRecItems.indexWhere(_.fullPath == db.getString())
+        val droppedIdx = pmgr.musicRecItems.indexWhere(_.fullPath == db.getString())
         val targetIdx = cell.tableRow.value.indexProperty().getValue
-        musicRecItems.find(_.fullPath == db.getString() && droppedIdx > -1 && targetIdx > -1).map { x =>
+        pmgr.musicRecItems.find(_.fullPath == db.getString() && droppedIdx > -1 && targetIdx > -1).map { x =>
           val newTrgtIdx:Int = if(targetIdx > droppedIdx) targetIdx + 1 else targetIdx
-          musicRecItems.insert(newTrgtIdx, x)
-          musicRecItems.remove(if(targetIdx > droppedIdx) droppedIdx else droppedIdx + 1)
+          pmgr.musicRecItems.insert(newTrgtIdx, x)
+          pmgr.musicRecItems.remove(if(targetIdx > droppedIdx) droppedIdx else droppedIdx + 1)
           column.getTableView.selectionModel.value.clearSelection()
           column.getTableView.selectionModel.value.select(targetIdx)
+          pmgr.saveCurrentPlaylist()
         }
         db.clear()
       }
@@ -159,7 +161,7 @@ class PlayListWidget(val musicRecItems:ObservableBuffer[MusicRecordItem]) {
   }
 
   def tableView(onItemDblClicked: MusicRecordItem => Unit):TableView[MusicRecordItem] = {
-    val table = new TableView[MusicRecordItem](musicRecItems) {
+    val table = new TableView[MusicRecordItem](pmgr.musicRecItems) {
       vgrow = Priority.ALWAYS
       hgrow = Priority.ALWAYS
       columns ++= List(durationColumn, trackColumn, albumColumn, artistColumn)

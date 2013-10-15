@@ -13,6 +13,7 @@ import scalafx.scene.layout._
 import scalafx.geometry.{Side, Pos}
 import scalafx.scene.image.Image
 import scala.util.Try
+import org.scfxplayer.controller.PlayListController
 
 object Main extends JFXApp {
   import scalafx.Includes._
@@ -44,7 +45,10 @@ object Main extends JFXApp {
       }
     }
   }
-  val playList = new PlayListWidget(musicRecItems)
+
+  val plMgr = new PlayListController(musicRecItems)
+
+  val playList = new PlayListWidget(plMgr)
   val musicRecTable = playList.tableView((i:MusicRecordItem) => playerControls.play(i))
 
   val playerControls = new PlayerControls(musicRecItems) {
@@ -82,12 +86,12 @@ object Main extends JFXApp {
           musicRecItems.lift(x).foreach(_.markDeleted)
           musicRecItems.remove(x)
         }
+        plMgr.saveCurrentPlaylist()
         smodel.clearSelection()
       }
     }
   }
 
-  val plMgr = new PlayListManagerMenu(musicRecItems)
 
   lazy val openFilesBtn:Button = new Button {
       styleClass ++= List("player-button", "button-eject")
