@@ -1,7 +1,8 @@
-package org.scfxplayer
+package org.scfxplayer.model
 
 import scalafx.beans.property.{BooleanProperty, StringProperty}
 import org.joda.time.Duration
+import org.scfxplayer.utils.PlayerUtils
 
 case class MusicRecordItem(artist_ : Option[String],
                       album_ : Option[String],

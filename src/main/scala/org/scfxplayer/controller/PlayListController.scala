@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.scfxplayer._
-import org.scfxplayer.MusicRecordItem
+import org.scfxplayer.model.{TrackMetaData, MusicRecordItem}
 
 object FileChoosers {
   val fchooser:FileChooser = new FileChooser()

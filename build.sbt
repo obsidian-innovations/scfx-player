@@ -13,8 +13,6 @@ resolvers ++= Seq(
     "Mandubian repository releases" at "https://github.com/mandubian/mandubian-mvn/raw/master/releases/"
     )
 
-
-
 libraryDependencies ++= Seq(
                            "org.specs2" %% "specs2" % "2.2.2" % "test",
                             "joda-time" % "joda-time" % "2.3",
@@ -30,15 +28,12 @@ libraryDependencies ++= Seq(
 //                            "org.scalafx" % "scalafx_2.10" % "8.0.0-M1"
                             )
 
-//to be removed
-//unmanagedJars in Compile += Attributed.blank(file(System.getenv("JAVA_HOME") + "/jre/lib/jfxrt.jar"))
 unmanagedJars in Compile += Attributed.blank(file(scala.util.Properties.javaHome) / "lib" / "jfxrt.jar")
 
 javaOptions += "-Dfile.encoding=UTF-8"
 
-mainClass in (Compile, run) := Some("org.scfxplayer.Main")
+mainClass in (Compile, run) := Some("org.scfxplayer.gui.Main")
 
-mainClass in assembly := Some("org.scfxplayer.Main")
+mainClass in assembly := Some("org.scfxplayer.gui.Main")
 
 fork in run := true
-

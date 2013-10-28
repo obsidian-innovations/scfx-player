@@ -1,8 +1,10 @@
-package org.scfxplayer
+package org.scfxplayer.controller
 
 import org.specs2.mutable._
 import org.joda.time.Duration
 import play.api.libs.json.{Json, Reads, Writes}
+import org.scfxplayer.utils.{JvmFileHandling, FileHandling}
+import org.scfxplayer.controller.{PlayListManager, PlayList}
 
 class PlayListManagerSpec extends Specification {
   val m1 ="/home/test1"

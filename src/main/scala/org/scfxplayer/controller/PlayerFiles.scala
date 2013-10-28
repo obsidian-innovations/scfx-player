@@ -1,7 +1,8 @@
-package org.scfxplayer
+package org.scfxplayer.controller
 
 import scala.util.{Failure, Success, Try}
 import play.api.libs.json.{Format, Json, Writes}
+import org.scfxplayer.utils.{JvmFileHandling, FileHandling}
 
 trait PlayerFiles {
   val playerHomeName = ".scfx-player"

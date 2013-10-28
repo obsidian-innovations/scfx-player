@@ -1,4 +1,4 @@
-package org.scfxplayer
+package org.scfxplayer.settings
 
 import play.api.libs.json._
 import java.lang.String
@@ -6,10 +6,12 @@ import scala.Predef.String
 import org.apache.commons.codec.binary.Base64
 import play.api.libs.json._
 import scala.util.Try
+import org.scfxplayer.utils.{FileHandling, JvmFileHandling}
+import org.scfxplayer.controller.{PlayerFiles, PlayListFile}
 
 case class Settings(playlistLocation:String)
 
-object Settings extends PlayerFiles{
+object Settings extends PlayerFiles {
   val default = PlayListFile.defaultLoc.map(Settings(_))
 
   val jsPlaylistName = "playlistLocation"

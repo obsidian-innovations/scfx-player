@@ -1,4 +1,4 @@
-package org.scfxplayer
+package org.scfxplayer.utils
 
 trait FileHandling {
   def homeFolder:String

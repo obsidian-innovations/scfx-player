@@ -1,11 +1,13 @@
-package org.scfxplayer
+package org.scfxplayer.controller
 
-import scala.util.{Try, Success, Failure }
+import scala.util.{Try, Success, Failure}
 import play.api.libs.json._
 import org.apache.commons.codec.binary.Base64
-
+import org.scfxplayer.settings.Settings
+import org.scfxplayer.utils.{JvmFileHandling, FileHandling}
 
 case class PlayList(files:List[String])
+
 object PlayList {
   val jsFiles = "items"
 
@@ -24,23 +26,18 @@ object PlayList {
 
 case class PlayListFile(location:String,playlist:PlayList)
 
-object PlayListFile extends PlayerFiles{
+object PlayListFile extends PlayerFiles {
   val defaultLoc = defaultLocation(PlayListManager.defaultPlaylistName)
 }
 
 object PlayListManager extends PlayerFiles {
   val defaultPlaylistName = "scfx-def-playlist.playlist"
 
-
   def saveToDefault(playlist:PlayList)(implicit fileHandling:FileHandling = JvmFileHandling):Try[Unit] =
     defaultLocation(defaultPlaylistName).flatMap(loc => save(loc,playlist))
 
   def openDefault(implicit fileHandling:FileHandling = JvmFileHandling):Try[PlayList] =
     defaultLocation(defaultPlaylistName).flatMap(loc => open[PlayList](loc))
-
-
-
-
 
   def openFromSettings(implicit fileHandling:FileHandling = JvmFileHandling):Try[PlayListFile] = for {
     settings <- Settings.open.transform(

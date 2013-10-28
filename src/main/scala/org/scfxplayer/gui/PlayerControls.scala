@@ -1,4 +1,4 @@
-package org.scfxplayer
+package org.scfxplayer.gui
 
 import java.io.File
 import scalafx.scene.layout.{VBox, Priority, HBox}
@@ -13,6 +13,8 @@ import scalafx.scene.text.Text
 import scalafx.animation._
 import scala.Some
 import scalafx.scene.shape.Rectangle
+import org.scfxplayer.model.MusicRecordItem
+import org.scfxplayer.utils.PlayerUtils
 
 class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
   import scalafx.Includes._

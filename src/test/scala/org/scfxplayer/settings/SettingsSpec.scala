@@ -1,7 +1,9 @@
-package org.scfxplayer
+package org.scfxplayer.settings
 
 import org.specs2.mutable._
 import play.api.libs.json.{Json, Reads, Writes}
+import org.scfxplayer.settings.Settings
+import org.scfxplayer.utils.{JvmFileHandling, FileHandling}
 
 class SettingsSpec extends Specification{
   "Settings" should {

@@ -1,4 +1,4 @@
-package org.scfxplayer
+package org.scfxplayer.model
 
 import java.io.File
 import scalafx.scene.media.{MediaPlayer, Media}

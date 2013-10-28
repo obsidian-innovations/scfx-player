@@ -1,4 +1,4 @@
-package org.scfxplayer
+package org.scfxplayer.gui
 
 import scalafx.scene.control._
 import scalafx.scene.layout.Priority
@@ -13,6 +13,7 @@ import scalafx.scene.paint.Color
 import scalafx.scene.text.Text
 import scala.util.Try
 import org.scfxplayer.controller.PlayListController
+import org.scfxplayer.model.MusicRecordItem
 
 //http://blog.ngopal.com.np/2012/05/06/javafx-drag-and-drop-cell-in-listview/
 
@@ -23,7 +24,6 @@ class PlayListWidget(val pmgr:PlayListController) {
     for(
       i <- Try(cell.tableRow.value.getItem.asInstanceOf[MusicRecordItem]).filter(_ != null)
     ) {
-//      println("## row number " + cell.tableRow.value.indexProperty().get + " / " + i.trackNameMade.value)
       cell.style.unbind()
       cell.style <== when (i.playingNow) choose {
         "-fx-font-weight: bold; -fx-text-fill: slateblue;"
