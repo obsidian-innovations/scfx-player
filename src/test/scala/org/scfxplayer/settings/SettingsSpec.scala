@@ -2,7 +2,6 @@ package org.scfxplayer.settings
 
 import org.specs2.mutable._
 import play.api.libs.json.{Json, Reads, Writes}
-import org.scfxplayer.settings.Settings
 import org.scfxplayer.utils.{JvmFileHandling, FileHandling}
 
 class SettingsSpec extends Specification{
@@ -14,7 +13,6 @@ class SettingsSpec extends Specification{
       val plStr = Json.stringify(Json.toJson(settings))
       Json.parse(plStr).asOpt[Settings] must beSome(settings)
     }
-
 
     "save and open from file" in {
       implicit val fh = new FileHandling {
