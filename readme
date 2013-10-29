@@ -19,6 +19,5 @@ Player features:
  - Customize currently displayed metadata (show/hide columns)
  - Responsive UI: columns with the metadata get re-sized and adjusted to the player window size
 
-Current limitation of the executable jar: non-latin characters are not supported if not launched
-with the following option "-Dfile.encoding=UTF-8".
+Current limitation of the executable jar: non-latin characters are not supported if not launched with the following option "-Dfile.encoding=UTF-8".
 
