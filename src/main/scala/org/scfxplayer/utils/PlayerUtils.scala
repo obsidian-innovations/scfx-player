@@ -1,7 +1,6 @@
 package org.scfxplayer.utils
 
 import org.joda.time.Duration
-import org.joda.time.format.PeriodFormatterBuilder
 
 object PlayerUtils {
 

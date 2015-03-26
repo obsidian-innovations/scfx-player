@@ -11,7 +11,6 @@ import scala.util.Try
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.text.Text
 import scalafx.animation._
-import scala.Some
 import scalafx.scene.shape.Rectangle
 import org.scfxplayer.model.MusicRecordItem
 import org.scfxplayer.utils.PlayerUtils
@@ -69,7 +68,7 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
     minHeight = 32
     onMouseClicked = (event:MouseEvent) => {
       event.consume()
-      playing.foreach(scheduleNextPlay(_))
+      playing.foreach(scheduleNextPlay)
     }
   }
 
@@ -81,7 +80,7 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
     minHeight = 32
     onMouseClicked = (event:MouseEvent) => {
       event.consume()
-      playing.foreach(schedulePrevPlay(_))
+      playing.foreach(schedulePrevPlay)
     }
   }
 
@@ -97,7 +96,6 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
     hgrow = Priority.Always
     vgrow = Priority.Never
     alignment = Pos.BottomCenter
-//    content = Seq(timePosSlider, timeMark)
     children = Seq(timePosSlider, timeMark)
     width onChange updateTimeLeftIdk
   }
@@ -106,7 +104,6 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
     alignment = Pos.CenterLeft
     vgrow = Priority.Always
     hgrow = Priority.Always
-//    content = Seq(playingNowText)
     children = Seq(playingNowText)
     width onChange {
       (s, oldVal, newVal) => {
@@ -132,7 +129,7 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
     node = playingNowText
   }
 
-  private def updateTimeLeftIdk {
+  private def updateTimeLeftIdk(): Unit = {
     timeMark.translateX = timePosLayout.width.value - timeMark.layoutBounds.value.getWidth - 5
   }
 
@@ -149,10 +146,8 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
     alignment = Pos.Center
     spacing = 15
     children = Seq(prevBtn, playBtn, nextBtn, volumeSlider)
-    //content = Seq(prevBtn, playBtn, nextBtn, volumeSlider)
   }
 
-//  content = Seq(playingTextLayout, timePosLayout, btnsLayout)
   children = Seq(playingTextLayout, timePosLayout, btnsLayout)
 
   private var player_ : () => Option[MediaPlayer] = () => None
@@ -172,12 +167,12 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
 
   def stop() = initState()
   def playing = playing_()
-  def isPlaying(i:MusicRecordItem) = playing.map(_.fullPath == i.fullPath).getOrElse(false)
+  def isPlaying(i:MusicRecordItem) = playing.exists(_.fullPath == i.fullPath)
   def play(item:MusicRecordItem) { play(Some(item)) }
 
-  def play(item:Option[MusicRecordItem]) {
+  def play(item:Option[MusicRecordItem]): Unit = {
     initState()
-    (item.headOption orElse items.headOption).map {  r =>
+    (item.headOption orElse items.headOption).foreach {  r =>
       (for {
         file <- Try(new File(r.fullPath))
         media <- Try(new Media(file.toURI.toURL.toExternalForm))

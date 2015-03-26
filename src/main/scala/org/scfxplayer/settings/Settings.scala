@@ -1,8 +1,5 @@
 package org.scfxplayer.settings
 
-import play.api.libs.json._
-import java.lang.String
-import scala.Predef.String
 import org.apache.commons.codec.binary.Base64
 import play.api.libs.json._
 import scala.util.Try

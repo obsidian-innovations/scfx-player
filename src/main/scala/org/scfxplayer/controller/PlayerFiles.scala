@@ -9,17 +9,17 @@ trait PlayerFiles {
 
   protected def readFile(file:String ):Try[String] = Try {
     val reader = new java.io.BufferedReader( new java.io.FileReader(file))
-    var line:String = null;
-    val stringBuilder = new StringBuilder();
-    val ls = System.getProperty("line.separator");
+    var line:String = null
+    val stringBuilder = new StringBuilder()
+    val ls = System.getProperty("line.separator")
     line = reader.readLine()
     while( line != null ) {
-      stringBuilder.append( line );
-      stringBuilder.append( ls );
+      stringBuilder.append( line )
+      stringBuilder.append( ls )
       line = reader.readLine()
     }
 
-    stringBuilder.toString();
+    stringBuilder.toString()
   }
 
   def save[T:Format](filename:String, items:T):Try[Unit] = Try {
