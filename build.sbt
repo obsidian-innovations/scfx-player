@@ -23,9 +23,6 @@ libraryDependencies ++= Seq(
                             "ch.qos.logback" % "logback-classic" % "1.0.13",
                             "ch.qos.logback" % "logback-core" % "1.0.13",
                             "org.slf4j" % "slf4j-api" % "1.7.5",
-// current stuff
-//                             "org.scalafx" % "scalafx_2.10" % "1.0.0-M5"
-// new stuff
                             "org.scalafx" %% "scalafx" % "8.0.40-R8"
                             )
 
@@ -38,3 +35,4 @@ mainClass in (Compile, run) := Some("org.scfxplayer.gui.Main")
 mainClass in assembly := Some("org.scfxplayer.gui.Main")
 
 fork in run := true
+
