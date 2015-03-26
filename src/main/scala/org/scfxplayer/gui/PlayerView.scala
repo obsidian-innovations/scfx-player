@@ -109,7 +109,8 @@ class PlayerView(stage: =>Stage) extends VBox {
     val rspacer = new Region {hgrow = Priority.SOMETIMES}
     hgrow = Priority.ALWAYS
     vgrow = Priority.ALWAYS
-    content = Seq(lspacer, playerControls, rspacer)
+    //content = Seq(lspacer, playerControls, rspacer)
+    children = Seq(lspacer, playerControls, rspacer)
   }
 
   val otherControlsLayout = new HBox {
@@ -119,7 +120,8 @@ class PlayerView(stage: =>Stage) extends VBox {
     vgrow = Priority.ALWAYS
     alignment = Pos.BOTTOM_CENTER
     spacing = 6
-    content = Seq(openFilesBtn, spacer, playlistSettingsBtn, deleteFilesBtn)
+//    content = Seq(openFilesBtn, spacer, playlistSettingsBtn, deleteFilesBtn)
+    children = Seq(openFilesBtn, spacer, playlistSettingsBtn, deleteFilesBtn)
   }
 
   val mainControlsLayout = new StackPane {
@@ -127,7 +129,8 @@ class PlayerView(stage: =>Stage) extends VBox {
     hgrow = Priority.ALWAYS
     minHeight = 90
     maxHeight = 90
-    content = Seq(playerControlsLayout, otherControlsLayout)
+//    content = Seq(playerControlsLayout, otherControlsLayout)
+    children = Seq(playerControlsLayout, otherControlsLayout)
   }
 
   plMgr.currentPlayListName.onChange {
@@ -152,6 +155,7 @@ class PlayerView(stage: =>Stage) extends VBox {
   styleClass ++= Seq("root")
   vgrow = Priority.ALWAYS
   hgrow = Priority.ALWAYS
-  content = Seq(mainControlsLayout, musicRecTable)
+//  content = Seq(mainControlsLayout, musicRecTable)
+  children = Seq(mainControlsLayout, musicRecTable)
 
 }

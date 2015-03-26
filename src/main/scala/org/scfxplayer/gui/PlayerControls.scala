@@ -20,14 +20,14 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
   import scalafx.Includes._
 
   private val timePosSlider = new Slider {
-    hgrow = Priority.ALWAYS
-    vgrow = Priority.ALWAYS
+    hgrow = Priority.Always
+    vgrow = Priority.Always
   }
 
   private val volumeSlider:Slider = new Slider {
     style = "-fx-padding: 0 0 0 10;"
-    hgrow = Priority.NEVER
-    vgrow = Priority.ALWAYS
+    hgrow = Priority.Never
+    vgrow = Priority.Always
     maxWidth = 90
     minWidth = 90
     min = 0.0
@@ -94,18 +94,20 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
   }
 
   private val timePosLayout:VBox = new VBox {
-    hgrow = Priority.ALWAYS
-    vgrow = Priority.NEVER
-    alignment = Pos.BOTTOM_CENTER
-    content = Seq(timePosSlider, timeMark)
+    hgrow = Priority.Always
+    vgrow = Priority.Never
+    alignment = Pos.BottomCenter
+//    content = Seq(timePosSlider, timeMark)
+    children = Seq(timePosSlider, timeMark)
     width onChange updateTimeLeftIdk
   }
 
   private lazy val playingTextLayout:HBox = new HBox {
-    alignment = Pos.CENTER_LEFT
-    vgrow = Priority.ALWAYS
-    hgrow = Priority.ALWAYS
-    content = Seq(playingNowText)
+    alignment = Pos.CenterLeft
+    vgrow = Priority.Always
+    hgrow = Priority.Always
+//    content = Seq(playingNowText)
+    children = Seq(playingNowText)
     width onChange {
       (s, oldVal, newVal) => {
         playingTextLayout.clip = new Rectangle {width = newVal.doubleValue; height = playingTextLayout.height.value}
@@ -121,7 +123,7 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
   }
 
   private lazy val scroller = new TranslateTransition {
-    cycleCount = Timeline.INDEFINITE
+    cycleCount = Timeline.Indefinite
     autoReverse = false
     interpolator = Interpolator.LINEAR
     fromX = 0.0
@@ -144,12 +146,14 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
 
   private val btnsLayout = new HBox {
     style = "-fx-padding: 5 0 5 0;"
-    alignment = Pos.CENTER
+    alignment = Pos.Center
     spacing = 15
-    content = Seq(prevBtn, playBtn, nextBtn, volumeSlider)
+    children = Seq(prevBtn, playBtn, nextBtn, volumeSlider)
+    //content = Seq(prevBtn, playBtn, nextBtn, volumeSlider)
   }
 
-  content = Seq(playingTextLayout, timePosLayout, btnsLayout)
+//  content = Seq(playingTextLayout, timePosLayout, btnsLayout)
+  children = Seq(playingTextLayout, timePosLayout, btnsLayout)
 
   private var player_ : () => Option[MediaPlayer] = () => None
   private var playing_ : () => Option[MusicRecordItem] = () => None
