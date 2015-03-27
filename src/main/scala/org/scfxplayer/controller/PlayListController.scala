@@ -1,12 +1,9 @@
 package org.scfxplayer.controller
 
-import javafx.scene.control.{CustomMenuItem, CheckMenuItem}
-import scalafx.scene.control.{MenuItem, Button, ContextMenu}
+import scalafx.scene.control.{MenuItem, ContextMenu}
 import scalafx.collections.ObservableBuffer
-import javafx.event.EventHandler
-import javafx.scene.input.MouseEvent
 import scala.util.Try
-import scalafx.stage.{Window, FileChooser}
+import scalafx.stage.FileChooser
 import java.io.File
 import scalafx.scene.Parent
 import scalafx.event.ActionEvent
@@ -14,7 +11,6 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicInteger
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import org.scfxplayer._
 import org.scfxplayer.model.{TrackMetaData, MusicRecordItem}
 
 object FileChoosers {
@@ -27,7 +23,7 @@ object FileChoosers {
   val playlistExt = "playlist"
 
   val plchooser:FileChooser = new FileChooser()
-  val pl = new FileChooser.ExtensionFilter("playlists", Seq(s"*.${playlistExt}"))
+  val pl = new FileChooser.ExtensionFilter("playlists", Seq(s"*.$playlistExt"))
   plchooser.getExtensionFilters.addAll(pl)
   plchooser.setTitle("Open playlist")
   plchooser.setInitialDirectory(new File(System.getProperty("user.home")))
@@ -40,7 +36,7 @@ object FileChoosers {
 
 class PlayListController(val musicRecItems: ObservableBuffer[MusicRecordItem]) { mgr =>
 
-  private val logger = LoggerFactory.getLogger(this.getClass);
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
   val currentPlayListName = ObservableBuffer[String]()
 
@@ -69,7 +65,7 @@ class PlayListController(val musicRecItems: ObservableBuffer[MusicRecordItem]) {
   def loadPlayList(plf:PlayListFile):Unit = {
     val PlayListFile(loc,pl) = plf
     logger.info(s"loading playlist: ${pl.files}")
-    if(!pl.files.isEmpty) {
+    if(pl.files.nonEmpty) {
       logger.info("clearing the items in the player")
       musicRecItems.clear()
       this.currentPlayListName += loc

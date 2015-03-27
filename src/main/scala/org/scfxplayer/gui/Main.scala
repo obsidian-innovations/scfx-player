@@ -9,7 +9,7 @@ import scalafx.scene.image.Image
 object Main extends JFXApp {
   import scalafx.Includes._
 
-  def getStage():Stage = stage
+  def getStage: Stage = stage
   val playerView = new PlayerView(getStage)
 
   stage = new PrimaryStage {

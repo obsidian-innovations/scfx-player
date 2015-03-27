@@ -19,7 +19,7 @@ case class MusicRecordItem(artist_ : Option[String],
   val playingNow = new BooleanProperty(this, "playingNow")
 
   private var markedDeleted_ = false
-  def markDeleted { markedDeleted_ = true }
+  def markDeleted(): Unit = { markedDeleted_ = true }
   def isMarkedDeleted = markedDeleted_
 
   private def cutExt(s:String) = s.reverse.dropWhile(_ != '.').drop(1).reverse.toString

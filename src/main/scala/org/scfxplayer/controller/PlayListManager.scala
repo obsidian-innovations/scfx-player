@@ -1,6 +1,6 @@
 package org.scfxplayer.controller
 
-import scala.util.{Try, Success, Failure}
+import scala.util.{Try, Success}
 import play.api.libs.json._
 import org.apache.commons.codec.binary.Base64
 import org.scfxplayer.settings.Settings
@@ -12,7 +12,6 @@ object PlayList {
   val jsFiles = "items"
 
   import Json._
-  import Reads._
   import Writes._
 
   implicit val format = new Format[PlayList] {
@@ -43,14 +42,14 @@ object PlayListManager extends PlayerFiles {
     settings <- Settings.open.transform(
      s => Success(s),
      f => {
-       Settings.default.map(Settings.save(_))
+       Settings.default.map(Settings.save)
        Settings.default
      }
     )
     loc <- location(settings.playlistLocation).transform(
       s => Success(s),
       f => {
-        Settings.default.map(Settings.save(_))
+        Settings.default.map(Settings.save)
         PlayListFile.defaultLoc
       }
     )

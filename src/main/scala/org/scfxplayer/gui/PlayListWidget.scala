@@ -8,7 +8,7 @@ import javafx.scene.input.{ClipboardContent, TransferMode}
 import javafx.scene.control.CheckMenuItem
 import javafx.event.EventHandler
 import scalafx.scene.{SnapshotParameters, ImageCursor, Cursor, Node}
-import com.sun.javafx.scene.control.skin.{LabelSkin, SkinBase}
+import com.sun.javafx.scene.control.skin.LabelSkin
 import scalafx.scene.paint.Color
 import scalafx.scene.text.Text
 import scala.util.Try

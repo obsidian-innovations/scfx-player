@@ -8,7 +8,6 @@ import scalafx.scene.control.Button
 import javafx.event.EventHandler
 import javafx.scene.input.MouseEvent
 import org.scfxplayer.model.MusicRecordItem
-import scalafx.stage
 import scalafx.stage.Stage
 import scala.util.Try
 
@@ -38,22 +37,22 @@ class PlayerView(stage: =>Stage) extends VBox {
           onRemovingItems(position, els.asInstanceOf[Traversable[MusicRecordItem]])
         case ObservableBuffer.Add(position, els) =>
           onAddingItems(position, els.asInstanceOf[Traversable[MusicRecordItem]])
-        case _ => {}
+        case _ =>
       }
     }
+  }
+
+  val playerControls = new PlayerControls(musicRecItems) {
+    alignment = Pos.Center
+    minWidth = 200
+    maxWidth = 500
+    hgrow = Priority.Always
+    vgrow = Priority.Always
   }
 
   val plMgr = new PlayListController(musicRecItems)
   val playList = new PlayListWidget(plMgr)
   val musicRecTable = playList.tableView((i:MusicRecordItem) => playerControls.play(i))
-
-  val playerControls = new PlayerControls(musicRecItems) {
-    alignment = Pos.CENTER
-    minWidth = 200
-    maxWidth = 500
-    hgrow = Priority.ALWAYS
-    vgrow = Priority.ALWAYS
-  }
 
   val playlistSettingsBtn:Button = new Button {
     styleClass ++= List("player-button", "button-settings")
@@ -105,38 +104,37 @@ class PlayerView(stage: =>Stage) extends VBox {
   }
 
   val playerControlsLayout = new HBox {
-    val lspacer = new Region {hgrow = Priority.SOMETIMES}
-    val rspacer = new Region {hgrow = Priority.SOMETIMES}
-    hgrow = Priority.ALWAYS
-    vgrow = Priority.ALWAYS
-    content = Seq(lspacer, playerControls, rspacer)
+    val lspacer = new Region {hgrow = Priority.Sometimes}
+    val rspacer = new Region {hgrow = Priority.Sometimes}
+    hgrow = Priority.Always
+    vgrow = Priority.Always
+    children = Seq(lspacer, playerControls, rspacer)
   }
 
   val otherControlsLayout = new HBox {
-    val spacer = new Region {hgrow = Priority.ALWAYS; pickOnBounds = false}
+    val spacer = new Region {hgrow = Priority.Always; pickOnBounds = false}
     pickOnBounds = false
-    hgrow = Priority.ALWAYS
-    vgrow = Priority.ALWAYS
-    alignment = Pos.BOTTOM_CENTER
+    hgrow = Priority.Always
+    vgrow = Priority.Always
+    alignment = Pos.BottomCenter
     spacing = 6
-    content = Seq(openFilesBtn, spacer, playlistSettingsBtn, deleteFilesBtn)
+    children = Seq(openFilesBtn, spacer, playlistSettingsBtn, deleteFilesBtn)
   }
 
   val mainControlsLayout = new StackPane {
     styleClass ++= Seq("player-controls-bg")
-    hgrow = Priority.ALWAYS
+    hgrow = Priority.Always
     minHeight = 90
     maxHeight = 90
-    content = Seq(playerControlsLayout, otherControlsLayout)
+    children = Seq(playerControlsLayout, otherControlsLayout)
   }
 
   plMgr.currentPlayListName.onChange {
     (_, changes) => {
       for (change <- changes) change match {
-        case ObservableBuffer.Add(position, els) => {
+        case ObservableBuffer.Add(position, els) =>
           stage.setTitle(s"Demo ScalaFX Player - ${els.headOption.map(_.toString).getOrElse("")}")
-        }
-        case _ => {}
+        case _ =>
       }
     }
   }
@@ -150,8 +148,8 @@ class PlayerView(stage: =>Stage) extends VBox {
   }
 
   styleClass ++= Seq("root")
-  vgrow = Priority.ALWAYS
-  hgrow = Priority.ALWAYS
-  content = Seq(mainControlsLayout, musicRecTable)
+  vgrow = Priority.Always
+  hgrow = Priority.Always
+  children = Seq(mainControlsLayout, musicRecTable)
 
 }
