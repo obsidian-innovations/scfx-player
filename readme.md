@@ -2,7 +2,7 @@
 About
 -----
 
-A simple music player which support all the basic features and a little beyond.
+A simple music player which supports all the basic features and a little beyond.
 
 The player was created as a maturity test for the [ScalaFX](http://www.scalafx.org/) framework.
 [Scala](http://www.scala-lang.org/) and [JavaFX](http://www.oracle.com/technetwork/java/javase/overview/javafx-overview-2158620.html) 
