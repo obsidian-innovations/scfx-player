@@ -8,6 +8,13 @@ The player was created as a maturity test for the [ScalaFX](http://www.scalafx.o
 [Scala](http://www.scala-lang.org/) and [JavaFX](http://www.oracle.com/technetwork/java/javase/overview/javafx-overview-2158620.html) 
 is the primary tech stack, see SBT file for more detail.
 
+How to run
+----------
+
+Make sure you have Java and SBT installed. Use SBT run command to launch the player:
+
+     $> sbt run
+
 
 Player key features
 -------------------
