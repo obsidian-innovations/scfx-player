@@ -1,7 +1,23 @@
 
-Demo music player written in Scala with JavaFX using ScalaFX.
+About
+-----
 
-Player features:
+A simple music player which support all the basic features and a little beyond.
+
+The player was created as a maturity test for the [ScalaFX](http://www.scalafx.org/) framework.
+[Scala](http://www.scala-lang.org/) and [JavaFX](http://www.oracle.com/technetwork/java/javase/overview/javafx-overview-2158620.html) 
+is the primary tech stack, see SBT file for more detail.
+
+How to run
+----------
+
+Make sure you have Java and SBT installed. Use SBT run command to launch the player:
+
+     $> sbt run
+
+
+Player key features
+-------------------
 
  - Major functions: play, rewind backwards and forwards, pause compositions
  - Seek within a composition using Drag&Drop slider
@@ -19,5 +35,9 @@ Player features:
  - Customize currently displayed metadata (show/hide columns)
  - Responsive UI: columns with the metadata get re-sized and adjusted to the player window size
 
-Current limitation of the executable jar: non-latin characters are not supported if not launched with the following option "-Dfile.encoding=UTF-8".
 
+Other technical details
+-----------------------
+
+Current limitation of the executable jar: non-latin characters are not supported 
+if not launched with the following option "-Dfile.encoding=UTF-8".
