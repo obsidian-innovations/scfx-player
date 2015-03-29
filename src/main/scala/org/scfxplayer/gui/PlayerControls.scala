@@ -214,11 +214,9 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
     else player.play()
   }
 
-  private def updateTimeLeftIndicator() {
-    player_().foreach { p =>
-      val timeleft = (p.totalDuration.value - p.currentTime.value).toMillis.toLong
-      timeMark.text = "-" + PlayerUtils.millisToString(timeleft)
-    }
+  private def updateTimeLeftIndicator(player:MediaPlayer) {
+    val timeLeft = (player.totalDuration.value - player.currentTime.value).toMillis.toLong
+    timeMark.text = "-" + PlayerUtils.millisToString(timeLeft)
   }
 
   private def onPlayerReady(mplayer:MediaPlayer) = {
@@ -232,17 +230,15 @@ class PlayerControls(items:ObservableBuffer[MusicRecordItem]) extends VBox {
     timePosSlider.value onChange {
       if(!timePosSlider.valueChanging.value || !isPlaying(mplayer)) {
         mplayer.mute = true
-        Try(mplayer.seek(Duration(timePosSlider.value.value * 1000.0))).foreach { _ =>
-          updateTimeLeftIndicator()
-        }
+        Try(mplayer.seek(Duration(timePosSlider.value.value * 1000.0)))
+        Try(updateTimeLeftIndicator(mplayer))
         mplayer.mute = false
       }
     }
     mplayer.currentTime onChange {
       timePosSlider.valueChanging = true
-      Try(timePosSlider.value = mplayer.currentTime.value.toSeconds).foreach { _ =>
-        updateTimeLeftIndicator()
-      }
+      timePosSlider.value = mplayer.currentTime.value.toSeconds
+      Try(updateTimeLeftIndicator(mplayer))
       timePosSlider.valueChanging = false
     }
     mplayer.play()
