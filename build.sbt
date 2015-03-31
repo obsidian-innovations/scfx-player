@@ -1,7 +1,7 @@
 
 lazy val commonSettings: Seq[Setting[_]] = Seq(
   name := "scfx-player",
-  version := "1.1",
+  version := "1.2-SNAPSHOT",
   organization := "com.oi",
   scalaVersion := "2.11.6"
 )
