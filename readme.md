@@ -1,12 +1,24 @@
 
+
+
 About
 -----
 
 A simple music player which supports all the basic features and a little beyond.
 
+![ScalaFX Player](docs/scfx-player-1.0.png)
+
 The player was created as a maturity test for the [ScalaFX](http://www.scalafx.org/) framework.
 [Scala](http://www.scala-lang.org/) and [JavaFX](http://www.oracle.com/technetwork/java/javase/overview/javafx-overview-2158620.html) 
 is the primary tech stack, see SBT file for more detail.
+
+
+Latest release
+--------------
+
+Latest release is available [here](release/scfx-player-1.1.jar?raw=true) - it's packed into self-executing JAR, after downloading
+launch it by double-clicking.
+
 
 How to run
 ----------
