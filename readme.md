@@ -16,7 +16,7 @@ is the primary tech stack, see SBT file for more detail.
 Latest release
 --------------
 
-Latest release is available [here](releases/scfx-player-1.1.jar?raw=true) - it's packed into self-executing JAR, after downloading
+Latest release is available [here](release/scfx-player-1.1.jar?raw=true) - it's packed into self-executing JAR, after downloading
 launch it by double-clicking.
 
 
