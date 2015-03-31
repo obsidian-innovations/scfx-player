@@ -12,6 +12,14 @@ The player was created as a maturity test for the [ScalaFX](http://www.scalafx.o
 [Scala](http://www.scala-lang.org/) and [JavaFX](http://www.oracle.com/technetwork/java/javase/overview/javafx-overview-2158620.html) 
 is the primary tech stack, see SBT file for more detail.
 
+
+Latest release
+--------------
+
+Latest release is available [here](releases/scfx-player-1.1.jar?raw=true) - it's packed into self-executing JAR, after downloading
+launch it by double-clicking.
+
+
 How to run
 ----------
 
