@@ -1,11 +1,16 @@
 package org.scfxplayer.controller
 
+import com.typesafe.scalalogging.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 import scala.util.{Failure, Success, Try}
 import play.api.libs.json.{Format, Json, Writes}
 import org.scfxplayer.utils.{JvmFileHandling, FileHandling}
 
 trait PlayerFiles {
   val playerHomeName = ".scfx-player"
+
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
   protected def readFile(file:String ):Try[String] = Try {
     val reader = new java.io.BufferedReader( new java.io.FileReader(file))
@@ -35,6 +40,7 @@ trait PlayerFiles {
 
   def open[T:Format](filename:String):Try[T] =  {
     //val lines = scala.io.Source.fromFile(filename,"UTF-8").mkString
+    logger.debug(s"opening filename - $filename")
     readFile(filename).map{ lines =>
       Try(Json.parse(lines).as[T])
     }.flatten

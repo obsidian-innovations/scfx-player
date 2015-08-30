@@ -75,10 +75,13 @@ class PlayListController(val musicRecItems: ObservableBuffer[MusicRecordItem]) {
 
   def loadDefaultPlaylist():Unit = {
     logger.info("loading the currently selected playlist - in settings")
-    PlayListManager.openFromSettings().map{ case PlayListFile(loc,playlist) =>
-      this.currentPlayListName  += loc
-      loadFiles(playlist.files.map(new java.io.File(_)))
-    }
+    PlayListManager
+      .openFromSettings
+      .orElse(PlayListManager.openDefault)
+      .map { case PlayListFile(loc,playlist) =>
+        this.currentPlayListName += loc
+        loadFiles(playlist.files.map(new java.io.File(_)))
+      }
   }
 
   def saveCurrentPlaylist() = Future {

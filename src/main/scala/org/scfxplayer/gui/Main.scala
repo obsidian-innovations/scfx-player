@@ -27,12 +27,16 @@ object Main extends JFXApp {
           playerView.onWidthUpdated(oldval.doubleValue, newval.doubleValue)
         }
       }
-      height onChange {playerView.setPrefHeight(scene.value.getHeight);}
+      height onChange {
+        playerView.setPrefHeight(scene.value.getHeight)
+      }
       content = playerView
       onCloseRequest = (event:WindowEvent) => {
         playerView.playerControls.stop()
       }
-      onShowing = (event:WindowEvent) => { playerView.plMgr.loadDefaultPlaylist() }
+      onShowing = (event:WindowEvent) => {
+        playerView.plMgr.loadDefaultPlaylist()
+      }
     }
   }
 
