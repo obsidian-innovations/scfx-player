@@ -1,42 +1,48 @@
 package org.scfxplayer.settings
 
-import org.apache.commons.codec.binary.Base64
-import play.api.libs.json._
+import sorm.{InitMode, Entity, Instance}
 import scala.util.Try
-import org.scfxplayer.utils.{FileHandling, JvmFileHandling}
-import org.scfxplayer.controller.{PlayerFiles, PlayListFile}
+import org.scfxplayer.utils.JvmFileHandling
 
-case class Settings(playlistLocation:String)
-
-object Settings extends PlayerFiles {
-  val default = PlayListFile.defaultLoc.map(Settings(_))
-
-  val jsPlaylistName = "playlistLocation"
-  import Json._
-  import Reads._
-  import Writes._
-
-  implicit val format = new Format[Settings] {
-    def reads(json: JsValue): JsResult[Settings] = (json \ jsPlaylistName).validate[String].map { pl =>
-      Settings(new String(Base64.decodeBase64(pl)))
-    }
-
-    def writes(o: Settings): JsValue =
-      obj((jsPlaylistName,new String(Base64.encodeBase64(o.playlistLocation.getBytes))))
-  }
-
-  val settingsFileName = "settings.json"
-
-  def save(settings:Settings)(implicit fileHandling:FileHandling = JvmFileHandling):Try[Unit] =
-    defaultLocation(settingsFileName).flatMap(loc => save(loc,settings))
-
-  def open(implicit fileHandling:FileHandling = JvmFileHandling):Try[Settings] =
-    defaultLocation(settingsFileName).flatMap(loc => open[Settings](loc))
-
-
-  def openOrDefault(implicit fileHandling:FileHandling = JvmFileHandling):Try[Settings] =
-    defaultLocation(settingsFileName).flatMap(loc => open[Settings](loc)) orElse default
-
+object ConfigKey extends Enumeration {
+  type ConfigKey = Value
+  val PlaylistLocation = Value
 }
 
+object Settings {
+
+  case class ConfigPair(key: ConfigKey.Value, value: String)
+
+  lazy val DbSettings = new Instance (
+    entities = Set(Entity[ConfigPair](unique = Set() + Seq("key"))),
+    url = "jdbc:h2:file:~/.scfx-player/settings",
+    user = "",
+    password = "",
+    initMode = InitMode.Create,
+    poolSize = 3
+  )
+
+  def playlistLocation: Try[String] = Try {
+    DbSettings
+      .query[ConfigPair]
+      .whereEqual("key", ConfigKey.PlaylistLocation)
+      .fetchOne()
+      .map(pair => pair.value)
+      .orElse(Some(s"${JvmFileHandling.homeFolder}/.scfx-player/scfx-def-playlist.playlist"))
+      .get
+  }
+
+  def savePlaylistLocation(path: String): Try[String] = Try {
+    DbSettings
+      .query[ConfigPair]
+      .whereEqual("key", ConfigKey.PlaylistLocation)
+      .fetchOne()
+      .orElse(Some(ConfigPair(ConfigKey.PlaylistLocation, path)))
+      .map(pair => pair.copy(value = path))
+      .map(DbSettings.save)
+      .map(pair => pair.value)
+      .get
+  }
+
+}
 

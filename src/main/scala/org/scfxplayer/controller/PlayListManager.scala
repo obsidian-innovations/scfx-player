@@ -1,5 +1,7 @@
 package org.scfxplayer.controller
 
+import org.slf4j.LoggerFactory
+
 import scala.util.{Try, Success}
 import play.api.libs.json._
 import org.apache.commons.codec.binary.Base64
@@ -23,49 +25,44 @@ object PlayList {
   }
 }
 
-case class PlayListFile(location:String,playlist:PlayList)
+case class PlayListFile(location:String, playlist:PlayList)
 
 object PlayListFile extends PlayerFiles {
   val defaultLoc = defaultLocation(PlayListManager.defaultPlaylistName)
 }
 
 object PlayListManager extends PlayerFiles {
+  private val logger = LoggerFactory.getLogger(this.getClass)
   val defaultPlaylistName = "scfx-def-playlist.playlist"
 
   def saveToDefault(playlist:PlayList)(implicit fileHandling:FileHandling = JvmFileHandling):Try[Unit] =
     defaultLocation(defaultPlaylistName).flatMap(loc => save(loc,playlist))
 
-  def openDefault(implicit fileHandling:FileHandling = JvmFileHandling):Try[PlayList] =
-    defaultLocation(defaultPlaylistName).flatMap(loc => open[PlayList](loc))
+  def openDefault(implicit fileHandling:FileHandling = JvmFileHandling):Try[PlayListFile] = for {
+    playlistFilePath <- defaultLocation(defaultPlaylistName)
+    playlist <- open[PlayList](playlistFilePath)
+  } yield {
+      logger.debug(s"playlist location from default: $playlistFilePath")
+      PlayListFile(playlistFilePath, playlist)
+    }
 
   def openFromSettings(implicit fileHandling:FileHandling = JvmFileHandling):Try[PlayListFile] = for {
-    settings <- Settings.open.transform(
-     s => Success(s),
-     f => {
-       Settings.default.map(Settings.save)
-       Settings.default
-     }
-    )
-    loc <- location(settings.playlistLocation).transform(
-      s => Success(s),
-      f => {
-        Settings.default.map(Settings.save)
-        PlayListFile.defaultLoc
-      }
-    )
-    playlist <- open[PlayList](loc)
-  } yield PlayListFile(loc,playlist)
-
+    playlistFilePath <- Settings.playlistLocation
+    playlist <- open[PlayList](playlistFilePath)
+  } yield {
+      logger.debug(s"playlist location from settings: $playlistFilePath")
+      PlayListFile(playlistFilePath, playlist)
+    }
 
   def saveInSettings(plFile:PlayListFile)(implicit fileHandling:FileHandling = JvmFileHandling):Try[Unit] = for {
-    settings <- Settings.openOrDefault
-    _ <- save(plFile.location,plFile.playlist)
-    _ <- Settings.save(settings.copy(playlistLocation = plFile.location))
+    playlistFilePath <- Settings.playlistLocation
+    _ <- save(plFile.location, plFile.playlist)
+    _ <- Settings.savePlaylistLocation(plFile.location)
   } yield ()
 
 
   def saveCurrent(playList:PlayList)(implicit fileHandling:FileHandling = JvmFileHandling):Try[Unit] = for {
-    settings <- Settings.openOrDefault
-    _ <- save(settings.playlistLocation,playList)
+    playlistFilePath <- Settings.playlistLocation
+    _ <- save(playlistFilePath, playList)
   } yield ()
 }
