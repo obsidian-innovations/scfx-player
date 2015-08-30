@@ -9,6 +9,7 @@ lazy val commonSettings: Seq[Setting[_]] = Seq(
 dependencyOverrides += "org.scala-lang" % "scala-compiler" % scalaVersion.value
 
 libraryDependencies ++= Seq(
+  "com.h2database" % "h2" % "1.4.187",
   "org.specs2" %% "specs2" % "2.4" % "test",
   "joda-time" % "joda-time" % "2.3",
   "org.joda" % "joda-convert" % "1.4",
